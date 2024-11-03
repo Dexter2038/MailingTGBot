@@ -1,13 +1,17 @@
 import asyncio
 from os import environ
 from aiogram import Bot, Dispatcher
-from app.database.models import init_db
+from app.config.init import initialize_app
 from app.handlers import get_router
 
-init_db()
+initialize_app()
 
-
-bot = Bot(token=environ["BOT_TOKEN"])
+try:
+    bot = Bot(token=environ["BOT_TOKEN"])
+except KeyError:
+    raise Exception("Переменная окружения 'BOT_TOKEN' не найдена")
+except Exception as e:
+    raise e
 
 dp = Dispatcher()
 

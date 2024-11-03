@@ -1,7 +1,7 @@
 from asynctinydb import TinyDB
 
 
-DB_PATH = "database.json"  # Путь к базе данных
+DB_PATH = "app/data/database.json"  # Путь к базе данных
 
 
 def get_db() -> TinyDB:

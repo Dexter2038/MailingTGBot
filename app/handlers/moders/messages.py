@@ -11,6 +11,16 @@ router = Router(name="moder_messages")
 
 @router.message(Command("start"))
 async def start_command(message: Message) -> None:
+    """
+    Эта функция обрабатывает команду /start,
+    отправляя приветственное сообщение модератору.
+
+    :param message: Объект Message, представляющий сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Отправляем приветственное сообщение модератору.
+    """
     await message.answer(
         "Пока что у тебя есть возможность только отвечать на вопросы в чате",
         reply_markup=get_moder_kb(),
@@ -19,4 +29,11 @@ async def start_command(message: Message) -> None:
 
 @router.message()
 async def echo_message(message: Message) -> None:
+    """
+    Эта функция обрабатывает любые сообщения, отправленные
+    модератором,которые не прошли остальные фильтры.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+    """
     return

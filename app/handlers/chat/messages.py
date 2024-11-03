@@ -10,6 +10,20 @@ router = Router(name="chat_messages")
 
 @router.message(F.reply_to_message.from_user.is_bot, IsChatMessage())
 async def answer_to_message(message: Message, bot: Bot):
+    """
+    Обрабатывает ответы на вопросы в чате.
+
+    :param message: Объект Message, представляющий сообщение.
+    :param bot: Объект Bot, представляющий бота, который отправляет сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем ID чата и ID сообщения, на которое отвечает пользователь.
+    2. Если пользователь не является модератором или администратором, удаляем его сообщение.
+    3. Отправляем ответ модератора пользователю в чат.
+    4. Удаляем ответ модератора.
+    """
+
     try:
         data = message.text.split("]", maxsplit=1)[0]
         data = data.split("[", maxsplit=1)[1]

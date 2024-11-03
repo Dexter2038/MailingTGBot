@@ -54,6 +54,22 @@ router.callback_query.filter(IsAdminCallback())
 
 @router.callback_query(F.data == "show_moders")
 async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для показа списка модераторов.
+    Она очищает текущее состояние, получает список модераторов из базы данных
+    и отправляет сообщение с их данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем список модераторов с помощью функции get_moders().
+    3. Если список модераторов пуст, отправляем сообщение о том, что модераторов нет.
+    4. Если модераторы найдены, формируем текст сообщения с их ID и именами.
+    5. Отправляем сообщение с данными модераторов и клавиатурой с возможными действиями.
+    """
     await state.clear()
     moders = await get_moders()
 
@@ -72,6 +88,22 @@ async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> No
 
 @router.callback_query(F.data.startswith("moder_"))
 async def show_moder_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для показа информации о модераторе.
+    Она очищает текущее состояние, получает информацию о модераторе из базы данных
+    и отправляет сообщение с его данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем информацию о модераторе с помощью функции get_moder().
+    3. Если модератор не найден, отправляем сообщение о том, что модератор не найден.
+    4. Если модератор найден, формируем текст сообщения с его ID, именем
+    5. Отправляем сообщение с данными модератора и клавиатурой с возможными действиями.
+    """
     await state.clear()
     _, id = callback.data.split("_")
 
@@ -91,6 +123,23 @@ async def show_moder_callback(callback: CallbackQuery, state: FSMContext) -> Non
 
 @router.callback_query(F.data.startswith("del_moder_"))
 async def del_moder_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для удаления модератора.
+    Она очищает текущее состояние, пытается удалить модератора по ID и
+    отправляет соответствующее сообщение в зависимости от результата.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Извлекаем ID модератора из данных callback-запроса.
+    3. Пытаемся удалить модератора, используя функцию del_moder().
+    4. Если модератор успешно удален, отправляем сообщение об успешном удалении.
+    5. Если пользователь не является модератором, отправляем соответствующее сообщение.
+    6. В случае возникновения исключения, отправляем сообщение об ошибке.
+    """
     await state.clear()
     _, _, id = callback.data.split("_")
 
@@ -112,6 +161,21 @@ async def del_moder_callback(callback: CallbackQuery, state: FSMContext) -> None
 
 @router.callback_query(F.data == "add_moderator")
 async def add_moderator_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для добавления модератора.
+    Она очищает текущее состояние, изменяет состояние машины состояний на
+    Admin.add_moderator и отправляет сообщение с инструкциями для добавления
+    модератора.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Изменяем состояние машины состояний на Admin.add_moderator.
+    3. Отправляем сообщение с инструкциями для добавления модератора.
+    """
     await state.set_state(Admin.add_moderator)
     await callback.message.edit_text(
         "Отправьте ID и имя пользователя в формате <id> <username> \n\nПример: 1234567890 @username или 1234567890 username",
@@ -121,6 +185,21 @@ async def add_moderator_callback(callback: CallbackQuery, state: FSMContext) -> 
 
 @router.callback_query(F.data == "make_mailing")
 async def make_mailing_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для отправки рассылки.
+    Она очищает текущее состояние, изменяет состояние машины состояний на
+    Admin.make_mailing и отправляет сообщение с инструкциями для отправки
+    рассылки.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Изменяем состояние машины состояний на Admin.make_mailing.
+    3. Отправляем сообщение с инструкциями для отправки рассылки.
+    """
     await state.set_state(Admin.make_mailing)
     await callback.message.edit_text(
         "Отправьте текст для рассылки",
@@ -130,6 +209,19 @@ async def make_mailing_callback(callback: CallbackQuery, state: FSMContext) -> N
 
 @router.callback_query(F.data == "ask_del_chat")
 async def ask_del_chat_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для сброса чата вопросов.
+    Она очищает текущее состояние машины состояний и
+    отправляет сообщение с вопросом о подтверждении сброса чата.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Отправляем сообщение с вопросом о подтверждении сброса чата.
+    """
     await state.clear()
     await callback.message.answer(
         "Вы уверены, что хотите сбросить чат вопросов?",
@@ -139,6 +231,19 @@ async def ask_del_chat_callback(callback: CallbackQuery, state: FSMContext) -> N
 
 @router.callback_query(F.data == "del_chat")
 async def del_chat_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для сброса чата вопросов.
+    Она очищает текущее состояние машины состояний и
+    отправляет сообщение, подтверждающее сброс чата.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Отправляем сообщение, подтверждающее сброс чата.
+    """
     await state.clear()
     result = await reset_chat()
 
@@ -154,6 +259,24 @@ async def del_chat_callback(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "show_confirms")
 async def show_confirms_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра рассылок с подтверждением.
+    Она очищает текущее состояние машины состояний, получает из базы данных
+    все рассылки с подтверждением и отправляет сообщение с текстом,
+    содержащим информацию о рассылках.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем из базы данных все рассылки с подтверждением.
+    3. Если рассылки с подтверждением не найдены, отправляем сообщение,
+       информирующее о том, что рассылки не найдены.
+    4. Если рассылки с подтверждением найдены, отправляем сообщение,
+       содержащее информацию о рассылках.
+    """
     await state.clear()
     confirms = get_all_confirms()
 
@@ -173,6 +296,23 @@ async def show_confirms_callback(callback: CallbackQuery, state: FSMContext) -> 
 
 @router.callback_query(F.data.startswith("show_confirm_"))
 async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для отображения информации о рассылке с подтверждением.
+    Она очищает текущее состояние, получает данные о рассылке из базы данных
+    и отправляет сообщение с информацией о рассылке и пользователях.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Извлекаем идентификатор рассылки из данных callback.
+    3. Получаем данные о рассылке с подтверждением из базы данных.
+    4. Если данные о рассылке не найдены, отправляем сообщение о том, что рассылка не найдена.
+    5. Если данные о рассылке найдены, форматируем сообщение с текстом рассылки и списком пользователей.
+    6. Отправляем сообщение с информацией о рассылке и клавиатурой с возможными действиями.
+    """
     await state.clear()
     _, _, id = callback.data.split("_")
 
@@ -186,9 +326,6 @@ async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
 
     text, users = data
 
-    text: str
-    users: List[Tuple[str | int, str]]
-
     await callback.message.edit_text(
         f"Рассылка с подтверждением:\n\n{text}\n\nПользователи:\n\n{users}\n.Выберите действие:",
         reply_markup=get_confirm_kb(id),
@@ -197,6 +334,19 @@ async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
 
 @router.callback_query(F.data == "add_confirm")
 async def add_confirm_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для добавления рассылки с подтверждением.
+    Она изменяет состояние машины состояний на Admin.add_confirm и отправляет сообщение
+    с инструкциями для добавления рассылки с подтверждением.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.add_confirm.
+    2. Отправляем сообщение с инструкциями для добавления рассылки с подтверждением.
+    """
     await state.set_state(Admin.add_confirm)
     await callback.message.edit_text(
         "Отправьте текст для рассылки с подтверждением",
@@ -206,6 +356,23 @@ async def add_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
 
 @router.callback_query(F.data.startswith("end_confirm_"))
 async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для удаления рассылки с подтверждением.
+    Она очищает текущее состояние, пытается удалить рассылку с подтверждением, используя функцию end_confirm()
+    и отправляет соответствующее сообщение в зависимости от результата.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Извлекаем ID рассылки с подтверждением из данных callback-запроса.
+    3. Пытаемся удалить рассылку с подтверждением, используя функцию end_confirm().
+    4. Если рассылка с подтверждением успешно удалена, отправляем сообщение об успешном удалении.
+    5. Если пользователь не является модератором, отправляем соответствующее сообщение.
+    6. В случае возникновения исключения, отправляем сообщение об ошибке.
+    """
     await state.clear()
     _, _, id = callback.data.split("_")
 
@@ -232,6 +399,23 @@ async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
 async def show_chat_callback(
     callback: CallbackQuery, bot: Bot, state: FSMContext
 ) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для показа ссылки на чат.
+    Она очищает текущее состояние, получает ссылку на чат,
+    используя функцию get_chat_link(), и отправляет сообщение
+    с этой ссылкой.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param bot: Объект Bot, представляющий бота.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем ссылку на чат.
+    3. Если чат не инициализирован, отправляем сообщение об этом.
+    4. Если чат инициализирован, отправляем сообщение с ссылкой на чат.
+    """
     await state.clear()
     chat_link = await get_chat_link(bot)
 
@@ -250,6 +434,23 @@ async def show_chat_callback(
 
 @router.callback_query(F.data == "edit_about_quiz")
 async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для редактирования информации о викторине.
+    Она очищает текущее состояние, получает текст информации о викторине,
+    используя функцию get_about_quiz(), и отправляет сообщение
+    с текущим текстом и кнопкой для редактирования.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.edit_about_quiz для редактирования О викторине.
+    2. Получаем текст информации о викторине.
+    3. Если текст не существует, отправляем сообщение об этом.
+    4. Если текст существует, отправляем сообщение с текстом
+    и кнопкой для редактирования.
+    """
     await state.set_state(Admin.edit_about_quiz)
     about_quiz = await get_about_quiz()
 
@@ -269,6 +470,21 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
 
 @router.callback_query(F.data == "edit_faq")
 async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для редактирования часто задаваемых вопросов (FAQ).
+    Она изменяет состояние машины состояний на Admin.edit_faq и отправляет сообщение
+    с текущим текстом FAQ и инструкцией для редактирования.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.edit_faq для редактирования FAQ.
+    2. Получаем текущий текст FAQ из базы данных.
+    3. Если текст FAQ не существует, отправляем сообщение с инструкцией для добавления текста.
+    4. Если текст FAQ существует, отправляем сообщение с текущим текстом и инструкцией для редактирования.
+    """
     await state.set_state(Admin.edit_faq)
     faq = await get_faq()
 
@@ -277,6 +493,7 @@ async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
             "Отправьте текст для выставления в Частые вопросы",
             reply_markup=get_faq_kb(),
         )
+        return
 
     await callback.message.edit_text(
         f"Частые вопросы:\n{faq}\n\n"
@@ -287,6 +504,22 @@ async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "show_quizzes")
 async def show_quizzes_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для показа всех викторин администратору.
+    Эта функция очищает текущее состояние, получает список викторин
+    и отправляет сообщение с их данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем список викторин из базы данных с помощью функции get_quizzes_admin().
+    3. Если список викторин пуст, отправляем сообщение о том, что викторин нет.
+    4. Если викторины найдены, формируем текст сообщения с их ID и текстом.
+    5. Отправляем сообщение с данными викторин и клавиатурой с возможными действиями.
+    """
     await state.clear()
     quizzes = await get_quizzes_admin()
 
@@ -307,6 +540,22 @@ async def show_quizzes_callback(callback: CallbackQuery, state: FSMContext) -> N
 
 @router.callback_query(F.data.startswith("show_quiz_"))
 async def show_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для показа информации о викторине администратору.
+    Она очищает текущее состояние, получает информацию о викторине из базы данных
+    и отправляет сообщение с ее данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем информацию о викторине из базы данных с помощью функции get_quiz().
+    3. Если викторина не найдена, отправляем сообщение о том, что викторина не найдена.
+    4. Если викторина найдена, формируем текст сообщения с ее ID, текстом и ID.
+    5. Отправляем сообщение с данными викторины и клавиатурой с возможными действиями.
+    """
     await state.clear()
     _, _, id = callback.data.split("_")
 
@@ -327,6 +576,22 @@ async def show_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
 
 @router.callback_query(F.data.startswith("edit_quiz_"))
 async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для редактирования викторины администратором.
+    Она очищает текущее состояние, изменяет состояние машины состояний на
+    Admin.edit_quiz и отправляет сообщение с инструкциями для редактирования
+    предстоящей викторины.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.edit_quiz для редактирования конкретной викторины.
+    2. Изменяем состояние машины состояний на Admin.edit_quiz.
+    3. Отправляем сообщение с инструкциями для редактирования викторины.
+    4. Добавляем id викторины в состояние машины состояний.
+    """
     _, _, id = callback.data.split("_")
     await state.set_state(Admin.edit_quiz)
     await callback.message.edit_text(
@@ -339,6 +604,22 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
 
 @router.callback_query(F.data.startswith("del_quiz_"))
 async def del_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для удаления викторины.
+    Она очищает текущее состояние, извлекает ID викторины из данных callback-запроса
+    и пытается удалить викторину, отправляя соответствующее сообщение в зависимости от результата.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Извлекаем ID викторины из данных callback-запроса.
+    3. Пытаемся удалить викторину, используя функцию del_quiz().
+    4. Если викторина успешно удалена, отправляем сообщение об успешном удалении.
+    5. Если викторина не была удалена, отправляем соответствующее сообщение.
+    """
     await state.clear()
     _, _, id = callback.data.split("_")
 
@@ -356,6 +637,20 @@ async def del_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "add_quiz")
 async def add_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для добавления викторины.
+    Она изменяет состояние машины состояний на
+    Admin.add_quiz и отправляет сообщение с инструкциями
+    для добавления викторины.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.add_quiz.
+    2. Отправляем сообщение с инструкциями для добавления викторины.
+    """
     await state.set_state(Admin.add_quiz)
     await callback.message.edit_text(
         "Отправьте текст для добавления викторины",
@@ -365,6 +660,24 @@ async def add_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "show_all_news")
 async def show_all_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра всех новостей.
+    Она очищает текущее состояние, получает из базы данных
+    все новости и отправляет сообщение с текстом,
+    содержащим информацию о рассылках.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем из базы данных все новости.
+    3. Если новости не найдены, отправляем сообщение,
+       информирующее о том, что новости не найдены.
+    4. Если новости найдены, отправляем сообщение,
+       содержащее информацию о рассылках.
+    """
     await state.clear()
     news = await get_news_admin()
 
@@ -385,6 +698,22 @@ async def show_all_news_callback(callback: CallbackQuery, state: FSMContext) -> 
 
 @router.callback_query(F.data.startswith("show_one_news_"))
 async def show_one_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для показа отдельной новости.
+    Она очищает текущее состояние, извлекает ID новости из данных callback-запроса
+    и отображает текст новости, если она найдена.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Извлекаем ID новости из данных callback-запроса.
+    3. Получаем текст новости из базы данных с помощью функции get_news_one().
+    4. Если новость не найдена, отправляем сообщение о том, что новость не найдена.
+    5. Если новость найдена, отправляем сообщение с ID и текстом новости, а также клавиатуру с возможными действиями.
+    """
     await state.clear()
     _, _, _, id = callback.data.split("_")
 
@@ -407,6 +736,19 @@ async def show_one_news_callback(callback: CallbackQuery, state: FSMContext) -> 
 
 @router.callback_query(F.data == "add_news")
 async def add_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для добавления новости.
+    Она изменяет состояние машины состояний на Admin.add_news
+    и отправляет сообщение с инструкциями для добавления новости.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.add_news.
+    2. Отправляем сообщение с инструкциями для добавления новости.
+    """
     await state.set_state(Admin.add_news)
     await callback.message.edit_text(
         "Отправьте текст для добавления новости",
@@ -416,6 +758,19 @@ async def add_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data.startswith("edit_news_"))
 async def edit_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для редактирования новости.
+    Она изменяет состояние машины состояний на Admin.edit_news
+    и отправляет сообщение с инструкциями для редактирования новости.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.edit_news.
+    2. Отправляем сообщение с инструкциями для редактирования новости.
+    """
     _, _, id = callback.data.split("_")
     await state.set_state(Admin.edit_news)
     await callback.message.edit_text(
@@ -428,8 +783,27 @@ async def edit_news_callback(callback: CallbackQuery, state: FSMContext) -> None
 
 @router.callback_query(F.data.startswith("del_news_"))
 async def del_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для удаления новости.
+    Она очищает текущее состояние машины состояний,
+    извлекает ID новости из данных callback-запроса,
+    удаляет новость с помощью функции del_news()
+    и отправляет соответствующее сообщение в зависимости от результата.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Извлекаем ID новости из данных callback-запроса.
+    3. Пытаемся удалить новость с помощью функции del_news().
+    4. Если новость была успешно удалена, отправляем сообщение об успешном удалении.
+    5. Если новость не была удалена, отправляем сообщение об ошибке.
+    """
     await state.clear()
     _, _, id = callback.data.split("_")
+
     if await del_news(id):
         await callback.message.edit_text(
             "Новость удалена",
@@ -444,6 +818,20 @@ async def del_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "start")
 async def start_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для начала работы.
+    Она очищает текущее состояние машины состояний,
+    отправляет сообщение с приветствием и предлагает
+    выбрать действие.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Отправляем сообщение с приветствием.
+    """
     await state.clear()
     await callback.message.edit_text(
         "Здравствуйте!\nВыберите действие",

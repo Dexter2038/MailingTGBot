@@ -30,7 +30,18 @@ router = Router(name="admin_messages")
 
 @router.message(Command("start"))
 async def start_command(message: Message) -> None:
+    """
+    Эта функция обрабатывает команду /start,
+    отправляя приветственное сообщение администратору
+    и предлагая ему просмотреть список доступных команд.
 
+    :param message: Объект Message, представляющий сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Отправляем приветственное сообщение администратору.
+    2. Предлагаем администратору просмотреть список доступных команд.
+    """
     await message.answer(
         "Привет, администратор! Команды доступны по команде /commands",
         reply_markup=get_admin_kb(),
@@ -39,6 +50,17 @@ async def start_command(message: Message) -> None:
 
 @router.message(Command("commands"))
 async def commands_command(message: Message) -> None:
+    """
+    Эта функция обрабатывает команду /commands, отправляя пользователю
+    список всех доступных команд и их описание.
+
+    :param message: Объект Message, представляющий сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Формируем текст, содержащий описание всех доступных команд для пользователя.
+    2. Отправляем этот текст в ответ на сообщение пользователя.
+    """
     text = (
         "Доступные команды:\n\n"
         "/start - начать работу с ботом\n"
@@ -72,6 +94,18 @@ async def commands_command(message: Message) -> None:
 
 @router.message(Command("moders"))
 async def show_moderators_command(message: Message) -> None:
+    """
+    Команда для администратора, которая показывает список модераторов.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем список модераторов с помощью функции get_moders().
+    2. Если список модераторов пуст, отправляем сообщение о том, что модераторов нет.
+    3. Если модераторы найдены, формируем текст сообщения с их ID, именами.
+    4. Отправляем сообщение с данными модераторов.
+    """
     moders = await get_moders()
     if not moders:
         await message.answer("Нет модераторов")
@@ -84,10 +118,24 @@ async def show_moderators_command(message: Message) -> None:
 
 @router.message(Command("addmoder"))
 async def add_moderator_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для администратора, которая назначает модератором пользователя.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем аргументы команды.
+    2. Если аргументов меньше 2, выводим ошибку.
+    3. Если ID пользователя не является числом, выводим ошибку.
+    4. Если пользователь уже является модератором, выводим ошибку.
+    5. Если ID пользователя правильный, то добавляем его в список модераторов.
+    """
     args = command.args
     try:
         args = args.split(" ")
-    except Exception:
+    except AttributeError:
         await message.answer(
             "Неверный формат команды. Используйте /addmoder <id> <username>. Пример: 123 @username или 123 username"
         )
@@ -111,12 +159,25 @@ async def add_moderator_command(message: Message, command: CommandObject) -> Non
         else:
             await message.answer("Пользователь уже модератор")
 
-    except Exception as e:
+    except Exception:
         await message.answer("Пользователь не назначен модератором. Произошла ошибка")
 
 
 @router.message(Command("delmoder"))
 async def del_moderator_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для удаления модератора из списка модераторов.
+
+    :param message: Объект Message, представляющий сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем аргументы команды.
+    2. Если аргументов меньше 1, выводим ошибку.
+    3. Если ID пользователя правильный, то удаляем его из списка модераторов.
+    4. Если ID пользователя не правильный, выводим ошибку.
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -152,6 +213,19 @@ async def del_moderator_command(message: Message, command: CommandObject) -> Non
 async def send_mailing_command(
     message: Message, command: CommandObject, bot: Bot
 ) -> None:
+    """
+    Команда для администратора, которая отправляет рассылку всем зарегистрированным пользователям.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :param bot: Объект Bot, представляющий бота, который отправляет сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем аргументы команды.
+    2. Если аргументов меньше 1, выводим ошибку.
+    3. Если аргументы правильные, то отправляем рассылку.
+    """
     text = command.args
     if not text:
         await message.answer("Неверный формат команды. Используйте /mailing <текст>")
@@ -167,6 +241,14 @@ async def send_mailing_command(
 
 @router.message(Command("delchat"))
 async def del_chat_command(message: Message) -> None:
+    """
+    Команда для сброса чата вопросов.
+    Она не имеет параметров, а возвращает None.
+
+    Внутренний процесс:
+    1. Очищаем файл с вопросами.
+    2. Отправляем сообщение, подтверждающее сброс чата.
+    """
     result = await reset_chat()
 
     if result:
@@ -177,6 +259,17 @@ async def del_chat_command(message: Message) -> None:
 
 @router.message(Command("confirms"))
 async def show_confirms_command(message: Message) -> None:
+    """
+    Команда для администратора, которая показывает список рассылок с подтверждением.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Проверяем, есть ли рассылки с подтверждением.
+    2. Если рассылки с подтверждением нет, выводим сообщение об этом.
+    3. Если рассылки с подтверждением есть, выводим список рассылок с подтверждением.
+    """
     confirms = get_all_confirms()
     if not confirms:
         await message.answer("Нет рассылок с подтверждением")
@@ -190,6 +283,18 @@ async def show_confirms_command(message: Message) -> None:
 
 @router.message(Command("confirm"))
 async def show_confirm_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для администратора, которая показывает рассылку с подтверждением.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Проверяем, есть ли рассылка с подтверждением.
+    2. Если рассылка с подтверждением нет, выводим сообщение об этом.
+    3. Если рассылка с подтверждением есть, выводим рассылку с подтверждением.
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -227,6 +332,19 @@ async def show_confirm_command(message: Message, command: CommandObject) -> None
 async def add_confirm_command(
     message: Message, command: CommandObject, bot: Bot
 ) -> None:
+    """
+    Команда для администратора, которая начинает рассылку с подтверждением.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :param bot: Объект Bot, представляющий бота, который отправляет сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст рассылки.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, начинаем рассылку с подтверждением.
+    """
     text = command.args
 
     if not text:
@@ -243,6 +361,18 @@ async def add_confirm_command(
 
 @router.message(Command("endconfirm"))
 async def del_confirm_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для завершения рассылки с подтверждением.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем ID рассылки.
+    2. Если ID не предоставлен или неверный, выводим сообщение об ошибке.
+    3. Если ID правильный, завершаем рассылку с подтверждением.
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -266,6 +396,18 @@ async def del_confirm_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("askchat"))
 async def show_chat_command(message: Message, bot: Bot) -> None:
+    """
+    Команда для получения ссылки на чат с вопросами.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param bot: Объект Bot, представляющий бота, который отправляет сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем ссылку на чат с вопросами с помощью функции get_chat_link().
+    2. Если ссылка не найдена, выводим сообщение об этом.
+    3. Если ссылка найдена, отправляем её в ответе на сообщение пользователя.
+    """
     chat_link = await get_chat_link(bot)
 
     if not chat_link:
@@ -277,6 +419,18 @@ async def show_chat_command(message: Message, bot: Bot) -> None:
 
 @router.message(Command("editaboutquiz"))
 async def edit_about_quiz_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для редактирования информации о викторине.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст для редактирования информации о викторине.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, обновляем информацию о викторине.
+    """
     args = command.args
 
     if not args:
@@ -295,6 +449,17 @@ async def edit_about_quiz_command(message: Message, command: CommandObject) -> N
 
 @router.message(Command("aboutquiz"))
 async def show_about_quiz_command(message: Message) -> None:
+    """
+    Команда для просмотра информации о викторине.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем информацию о викторине с помощью функции get_about_quiz().
+    2. Если информация не найдена, выводим сообщение об этом.
+    3. Если информация найдена, отправляем её в ответе на сообщение пользователя.
+    """
     quiz_info = await get_about_quiz()
 
     if not quiz_info:
@@ -306,6 +471,18 @@ async def show_about_quiz_command(message: Message) -> None:
 
 @router.message(Command("editfaq"))
 async def edit_faq_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для редактирования информации о частых вопросах.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст для редактирования информации о частых вопросах.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, обновляем информацию о частых вопросах.
+    """
     args = command.args
 
     if not args:
@@ -324,6 +501,17 @@ async def edit_faq_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("faq"))
 async def show_faq_command(message: Message) -> None:
+    """
+    Команда для просмотра информации о частых вопросах.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем информацию о частых вопросах с помощью функции get_faq().
+    2. Если информация не найдена, выводим сообщение об этом.
+    3. Если информация найдена, отправляем её в ответе на сообщение пользователя.
+    """
     faq = await get_faq()
 
     if not faq:
@@ -335,6 +523,17 @@ async def show_faq_command(message: Message) -> None:
 
 @router.message(Command("news"))
 async def show_news_command(message: Message) -> None:
+    """
+    Команда для просмотра новостей.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем список новостей с помощью функции get_news_admin().
+    2. Если список новостей не найден, выводим сообщение об этом.
+    3. Если список новостей найден, отправляем его в ответе на сообщение пользователя.
+    """
     news = await get_news_admin()
 
     if not news:
@@ -349,6 +548,20 @@ async def show_news_command(message: Message) -> None:
 
 @router.message(Command("addnews"))
 async def add_news_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для добавления новости.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст новости.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, добавляем новость с помощью функции add_news().
+    4. Если новость была успешно добавлена, отправляем сообщение об этом.
+    5. Если новость не была добавлена, отправляем сообщение об ошибке.
+    """
     args = command.args
 
     if not args:
@@ -365,6 +578,18 @@ async def add_news_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("editnews"))
 async def edit_news_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для редактирования новости.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст для редактирования новости.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, обновляем новость с помощью функции edit_news().
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -393,7 +618,22 @@ async def edit_news_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("delnews"))
 async def delete_news_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для удаления новости.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем ID новости из параметров команды.
+    2. Если ID новости не найден, выводим сообщение об ошибке.
+    3. Если ID новости найден, удаляем новость с помощью функции del_news().
+    4. Если новость была успешно удалена, отправляем сообщение об этом.
+    5. Если новость не была удалена, отправляем сообщение об ошибке.
+    """
     args = command.args
+
     try:
         args = args.split(" ")
     except AttributeError:
@@ -416,6 +656,18 @@ async def delete_news_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("quizzes"))
 async def show_quizzes_command(message: Message) -> None:
+    """
+    Команда для просмотра предстоящих викторин.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем список предстоящих викторин из базы данных.
+    2. Если список викторин пуст, выводим сообщение об этом.
+    3. Если викторины найдены, формируем текст сообщения с их ID и текстом.
+    4. Отправляем сообщение с данными викторин.
+    """
     quizzes = await get_quizzes_admin()
 
     if not quizzes:
@@ -430,6 +682,20 @@ async def show_quizzes_command(message: Message) -> None:
 
 @router.message(Command("quiz"))
 async def show_quiz_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для просмотра предстоящей викторины.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем ID викторины.
+    2. Если ID не указан, выводим сообщение об ошибке.
+    3. Если ID указан, получаем текст викторины.
+    4. Если викторина не найдена, выводим сообщение об этом.
+    5. Если викторина найдена, отправляем текст в ответе на сообщение пользователя.
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -454,6 +720,18 @@ async def show_quiz_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("addquiz"))
 async def add_quiz_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для добавления предстоящей викторины.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст для добавления викторины.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст не пустой, добавляем викторину.
+    """
     args = command.args
 
     if not args:
@@ -470,6 +748,18 @@ async def add_quiz_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("editquiz"))
 async def edit_quiz_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для редактирования викторины.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем ID викторины и текст для редактирования.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст не пустой, обновляем викторину.
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -498,6 +788,17 @@ async def edit_quiz_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("delquiz"))
 async def delete_quiz_command(message: Message, command: CommandObject) -> None:
+    """Команда для удаления викторины.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем аргументы команды.
+    2. Если аргументы пустые, выводим сообщение об ошибке.
+    3. Если аргументы непустые, удаляем викторину.
+    """
     args = command.args
     try:
         args = args.split(" ")
@@ -521,6 +822,18 @@ async def delete_quiz_command(message: Message, command: CommandObject) -> None:
 
 @router.message(Command("addquiz"))
 async def add_quiz_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для добавления новой предстоящей викторины.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст из аргумента команды для добавления викторины.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, добавляем новую викторину.
+    """
     text = command.args
 
     if not text:
@@ -537,4 +850,12 @@ async def add_quiz_command(message: Message, command: CommandObject) -> None:
 
 @router.message()
 async def echo_message(message: Message) -> None:
+    """
+
+    Эта функция обрабатывает любые сообщения, которые не соответствуют
+    ни одной из команд администратора.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+    """
     return

@@ -5,7 +5,14 @@ from aiogram.fsm.context import FSMContext
 from app.database.actions import add_confirm, end_confirm
 
 from app.states.admin import Admin
-from app.utils.info import add_quiz, edit_about_quiz, edit_faq, edit_news, edit_quiz
+from app.utils.info import (
+    add_news,
+    add_quiz,
+    edit_about_quiz,
+    edit_faq,
+    edit_news,
+    edit_quiz,
+)
 from app.utils.mailing import make_mailing
 from app.utils.ranks import add_moder, del_moder
 from app.keyboards.admin import get_back_kb
@@ -16,6 +23,27 @@ router = Router(name="admin_states")
 
 @router.message(Admin.add_moderator)
 async def add_moder_state(message: Message, state: FSMContext) -> None:
+    """
+    Функция, которая обрабатывает сообщение, отправленное администратором,
+    для добавления модератора. Она очищает текущее состояние, получает
+    информацию о пользователе, пытается добавить модератора, используя
+    функцию add_moder(), и отправляет сообщение с результатом.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние машины состояний.
+    2. Получаем аргументы сообщения.
+    3. Если аргументы неправильны, отправляем сообщение с инструкциями.
+    4. Если аргументы правильны, пытаемся добавить модератора.
+    5. Если модератор успешно добавлен, отправляем сообщение об успешном
+    добавлении.
+    6. Если пользователь уже является модератором, отправляем соответствующее
+    сообщение.
+    7. Если возникла ошибка, отправляем сообщение об ошибке.
+    """
     args = message.text.split(" ")
 
     if len(args) != 2 or not args[0].isdigit():
@@ -50,42 +78,28 @@ async def add_moder_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.del_moderator)
-async def del_moder_state(message: Message, state: FSMContext) -> None:
-    args = message.text.split(" ")
-
-    if len(args) != 1:
-        await message.answer(
-            "Неверный формат. Введите <id/username> с пробелом между ними. Пример: 123 @username или 123 username",
-            reply_markup=get_back_kb(),
-        )
-        return
-
-    id = args[0]
-
-    try:
-        result = await del_moder(id)
-
-        if result:
-            await message.answer(
-                "Пользователь удален из списка модераторов", reply_markup=get_back_kb()
-            )
-        else:
-            await message.answer(
-                "Пользователь не модератор", reply_markup=get_back_kb()
-            )
-
-    except Exception:
-        await message.answer(
-            "Пользователь не удален из списка модераторов. Произошла ошибка",
-            reply_markup=get_back_kb(),
-        )
-
-    await state.clear()
-
-
 @router.message(Admin.make_mailing)
 async def make_mailing_state(message: Message, state: FSMContext, bot: Bot) -> None:
+    """
+    Эта функция обрабатывает сообщение, отправленное администратором,
+    для запуска рассылки. Она получает текст сообщения, передает его
+    на функцию make_mailing() для отправки и оповещает пользователя
+    о результате.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :param bot: Объект Bot, представляющий бота, который отправляет сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст сообщения.
+    2. Пытаемся отправить рассылку, используя функцию make_mailing().
+    3. Если рассылка успешно отправлена, отправляем сообщение об успешной
+    отправке.
+    4. Если рассылка не отправлена, отправляем сообщение о неудаче.
+    5. В случае ошибки отправляем сообщение об ошибке.
+    6. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     try:
@@ -106,10 +120,29 @@ async def make_mailing_state(message: Message, state: FSMContext, bot: Bot) -> N
 
 @router.message(Admin.add_news)
 async def add_news_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает сообщение, отправленное администратором,
+    для добавления новостей. Она получает текст сообщения,
+    передает его на функцию add_news() для добавления
+    и оповещает пользователя о результате.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст сообщения.
+    2. Пытаемся добавить новость, используя функцию add_news().
+    3. Если новость была успешно добавлена, отправляем сообщение об успешном
+    добавлении.
+    4. Если новость не была добавлена, отправляем сообщение о неудаче.
+    5. В случае ошибки отправляем сообщение об ошибке.
+    6. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     try:
-        result = await edit_news(text)
+        result = await add_news(text)
 
         if result:
             await message.answer("Новости добавлены", reply_markup=get_back_kb())
@@ -126,6 +159,25 @@ async def add_news_state(message: Message, state: FSMContext) -> None:
 
 @router.message(Admin.add_quiz)
 async def add_quiz_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает сообщение, отправленное администратором,
+    для добавления викторины. Она получает текст сообщения,
+    передает его на функцию add_quiz() для добавления
+    и оповещает пользователя о результате.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст сообщения.
+    2. Пытаемся добавить викторину, используя функцию add_quiz().
+    3. Если викторина была успешно добавлена, отправляем сообщение об успешном
+    добавлении.
+    4. Если викторина не была добавлена, отправляем сообщение о неудаче.
+    5. В случае ошибки отправляем сообщение об ошибке.
+    6. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     try:
@@ -146,6 +198,25 @@ async def add_quiz_state(message: Message, state: FSMContext) -> None:
 
 @router.message(Admin.add_confirm)
 async def add_confirm_state(message: Message, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает сообщение, отправленное администратором,
+    для добавления рассылки с подтверждением. Она получает текст сообщения,
+    передает его на функцию add_confirm() для добавления и оповещает
+    пользователя о результате.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст сообщения.
+    2. Пытаемся добавить рассылку с подтверждением, используя функцию add_confirm().
+    3. Если рассылка успешно добавлена, отправляем сообщение об успешном
+       добавлении.
+    4. Если рассылка не была добавлена, отправляем сообщение о неудаче.
+    5. В случае ошибки отправляем сообщение об ошибке.
+    6. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     try:
@@ -169,34 +240,26 @@ async def add_confirm_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.del_confirm)
-async def del_confirm_state(message: Message, state: FSMContext) -> None:
-    text = message.text
-
-    if not text.isdigit():
-        await message.answer(
-            "Неверный формат. Введите ID рассылки", reply_markup=get_back_kb()
-        )
-        return
-
-    try:
-        result = await end_confirm(int(text))
-
-        if result:
-            await message.answer("Рассылка закончена", reply_markup=get_back_kb())
-        else:
-            await message.answer("Рассылка не закончена", reply_markup=get_back_kb())
-
-    except Exception:
-        await message.answer(
-            "Рассылка не закончена. Произошла ошибка", reply_markup=get_back_kb()
-        )
-
-    await state.clear()
-
-
 @router.message(Admin.edit_about_quiz)
 async def edit_about_quiz_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает сообщение для редактирования информации о викторине.
+    Получает текст сообщения от пользователя и пытается обновить
+    информацию в базе данных.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Извлекаем текст из сообщения пользователя.
+    2. Вызываем функцию edit_about_quiz() для обновления текста в базе данных.
+    3. Проверяем результат выполнения функции:
+       - Если обновление успешно, отправляем сообщение об успешном изменении.
+       - Если обновление не удалось, отправляем сообщение о неудаче.
+    4. Обрабатываем исключения и отправляем сообщение об ошибке в случае сбоя.
+    5. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     try:
@@ -217,6 +280,23 @@ async def edit_about_quiz_state(message: Message, state: FSMContext) -> None:
 
 @router.message(Admin.edit_faq)
 async def edit_faq_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает сообщение для редактирования информации о часто задаваемых вопросах (FAQ).
+    Получает текст сообщения от пользователя и пытается обновить информацию в базе данных.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Извлекаем текст из сообщения пользователя.
+    2. Вызываем функцию edit_faq() для обновления текста в базе данных.
+    3. Проверяем результат выполнения функции:
+       - Если обновление успешно, отправляем сообщение об успешном изменении.
+       - Если обновление не удалось, отправляем сообщение о неудаче.
+    4. Обрабатываем исключения и отправляем сообщение об ошибке в случае сбоя.
+    5. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     try:
@@ -239,6 +319,25 @@ async def edit_faq_state(message: Message, state: FSMContext) -> None:
 
 @router.message(Admin.edit_news)
 async def edit_news_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает сообщение для редактирования новости.
+    Функция извлекает текст новости из сообщения пользователя и обновляет
+    соответствующую запись в базе данных.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Извлекаем текст новости из сообщения пользователя.
+    2. Получаем данные состояния, чтобы извлечь ID новости для редактирования.
+    3. Пытаемся обновить новость в базе данных, вызывая функцию edit_news().
+    4. Проверяем результат выполнения функции:
+       - Если обновление успешно, отправляем сообщение об успешном изменении.
+       - Если обновление не удалось, отправляем сообщение о неудаче.
+    5. Обрабатываем исключения и отправляем сообщение об ошибке в случае сбоя.
+    6. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     data = await state.get_data()
@@ -263,6 +362,24 @@ async def edit_news_state(message: Message, state: FSMContext) -> None:
 
 @router.message(Admin.edit_quiz)
 async def edit_quiz_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает текст, отправленный администратором, и обновляет
+    текст викторины с соответствующим ID.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Извлекаем текст викторины из сообщения администратора.
+    2. Получаем данные состояния, чтобы извлечь ID викторины для редактирования.
+    3. Пытаемся обновить викторину в базе данных, вызывая функцию edit_quiz().
+    4. Проверяем результат выполнения функции:
+       - Если обновление успешно, отправляем сообщение об успешном изменении.
+       - Если обновление не удалось, отправляем сообщение о неудаче.
+    5. Обрабатываем исключения и отправляем сообщение об ошибке в случае сбоя.
+    6. Очищаем текущее состояние машины состояний.
+    """
     text = message.text
 
     data = await state.get_data()
