@@ -16,10 +16,9 @@ def try_db_connection() -> None:
         ) as connection:
             query: str = (
                 """
-                DROP DATABASE IF EXISTS %s;
                 CREATE DATABASE IF NOT EXISTS %s;
                 """
-                % (environ["DB_NAME"], environ["DB_NAME"])
+                % (environ["DB_NAME"],)
             )
             with connection.cursor() as cursor:
                 cursor.execute(query)
@@ -45,7 +44,7 @@ def setup_models() -> None:
             users_query: str = (
                 """
                 CREATE TABLE IF NOT EXISTS users (
-                    id INT PRIMARY KEY,
+                    id BIGINT PRIMARY KEY,
                     email VARCHAR(255),
                     username VARCHAR(255)
                 );
@@ -62,7 +61,8 @@ def setup_models() -> None:
             users_confirms_query: str = (
                 """
                 CREATE TABLE IF NOT EXISTS users_confirms (
-                    user_id INT,
+                    user_id BIGINT UNIQUE,
+                    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
                     confirm_id INT,
                     FOREIGN KEY (confirm_id) REFERENCES confirms (id) ON DELETE CASCADE
                 );

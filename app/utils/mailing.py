@@ -14,7 +14,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from app.database.actions import add_confirm, get_all_emails_and_ids
-from app.keyboards.mailing import get_confirm_mailing_kb
+from app.keyboards.user import get_confirm_mailing_kb
 
 # При изменении удалить файл token.json.
 SCOPES: List[str] = ["https://mail.google.com/"]
@@ -110,7 +110,7 @@ def send_message(service, destination, title, body) -> Any:
     )
 
 
-async def send_mailing(text: str, bot: Bot) -> bool:
+async def make_mailing(text: str, bot: Bot) -> bool:
     """
     Отправляет сообщение с текстом text
     всем пользователям, у которых есть email.
@@ -141,18 +141,19 @@ async def send_mailing(text: str, bot: Bot) -> bool:
 
         return True
 
-    except:
+    except Exception as e:
         print("Не получилось отправить сообщение всем пользователям")
         return False
 
 
-async def send_confirm_mailing(text: str, bot: Bot) -> bool:
+async def make_confirm_mailing(text: str, bot: Bot) -> bool:
     """
     Отправляет сообщение с текстом text
     всем пользователям, у которых есть email.
 
     Args:
         text (str): текст сообщения.
+        bot (Bot): объект бота, который отправляет сообщение.
 
     Returns:
         bool: флаг успешности отправки.
@@ -180,6 +181,6 @@ async def send_confirm_mailing(text: str, bot: Bot) -> bool:
 
         return True
 
-    except:
+    except Exception as e:
         print("Не получилось отправить сообщение всем пользователям")
         return False

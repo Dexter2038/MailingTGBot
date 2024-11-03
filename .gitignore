@@ -7,3 +7,5 @@ credentials.json
 moders.txt
 token.json
 token.pickle
+old_app/
+.vscode

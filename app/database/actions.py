@@ -1,3 +1,4 @@
+from cgitb import text
 from typing import List, Tuple
 from mysql.connector import connect, Error
 from os import environ
@@ -281,14 +282,14 @@ def end_confirm(id: int) -> bool:
         return False
 
 
-def get_confirm_users(id: int) -> List[Tuple[int, str]]:
+def get_confirm(id: int) -> Tuple[str, List[Tuple[int, str]]]:
     """
-    Возвращает информацию о подтвержденных пользователях
+    Возвращает информацию о подтвержденных пользователях и текст рассылки
 
     Args:
         id: int - id рассылки
     Returns:
-        List[Tuple[int, str]]: тг id и username каждого пользователя, подтвердившего id конкурса
+        Tuple[str,List[Tuple[int,str]]]: текст + тг id и username каждого пользователя, подтвердившего id конкурса
     """
     try:
         with connect(
@@ -297,18 +298,33 @@ def get_confirm_users(id: int) -> List[Tuple[int, str]]:
             password=environ["DB_PASSWORD"],
             database=environ["DB_NAME"],
         ) as connection:
-            query: str = (
+            text_query: str = (
                 """
-                SELECT user.id, user.username 
-                FROM users_confirms AS confirmation 
-                JOIN users AS user ON user.id = confirmation.user_id
-                WHERE confirmation.confirm_id = %s;
+                SELECT text FROM confirms WHERE id = %s;
+                """
+            )
+            users_query: str = (
+                """
+                SELECT 
+                 user.id,
+                 user.username
+                FROM 
+                 users_confirms AS confirmation 
+                JOIN 
+                 users AS user ON user.id = confirmation.user_id
+                WHERE 
+                 confirmation.confirm_id = %s;
                 """
             )
             with connection.cursor() as cursor:
-                cursor.execute(query, (id,))
-                return cursor.fetchall()
+                cursor.execute(text_query, (id,))
+                text = cursor.fetchone()[0]
+                cursor.execute(users_query, (id,))
+                users = cursor.fetchall()
+                return text, [(user[0], user[1]) for user in users]
     except Error as e:
         print(e)
         print("Не получилось получить подтвержденных пользователей")
         return []
+
+

@@ -1,12 +1,22 @@
-from typing import List
 from aiogram.filters import Filter
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
+
+from app.utils.ranks import get_moders
 
 
-class IsModer(Filter):
+class IsModerMessage(Filter):
 
     async def __call__(self, message: Message) -> bool:
-        with open("moders.txt", "r") as f:
-            moders: str = f.read()
-            res: List[str] = [sublist[0] for sublist in moders]
-        return message.chat.id in res
+        if message.chat.type != "private":
+            return False
+        return message.chat.id in [int(moder[0]) for moder in await get_moders()]
+
+
+class IsModerCallback(Filter):
+
+    async def __call__(self, callback: CallbackQuery) -> bool:
+        if callback.message.chat.type != "private":
+            return False
+        return callback.message.chat.id in [
+            int(moder[0]) for moder in await get_moders()
+        ]

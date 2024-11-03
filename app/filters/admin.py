@@ -1,13 +1,20 @@
-import os
 from aiogram.filters import Filter
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
+
+from app.utils.ranks import get_admin
 
 
-class IsAdmin(Filter):
+class IsAdminMessage(Filter):
 
     async def __call__(self, message: Message) -> bool:
-        with open("admin.txt", "r") as f:
-            admin: str = f.read()
-            if admin == "":
-                return False
-        return message.from_user.id == int(admin)
+        if message.chat.type != "private":
+            return False
+        return (await get_admin()) == message.chat.id
+
+
+class IsAdminCallback(Filter):
+
+    async def __call__(self, callback: CallbackQuery) -> bool:
+        if callback.message.chat.type != "private":
+            return False
+        return (await get_admin()) == callback.message.chat.id

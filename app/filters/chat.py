@@ -1,19 +1,20 @@
-import os
 from aiogram.filters import Filter
 from aiogram.types import Message, CallbackQuery
 
-
-class IsChatCallback(Filter):
-
-    async def __call__(self, callback: CallbackQuery) -> bool:
-        with open("chat.txt", "r") as f:
-            chat: str = f.read()
-        return callback.message.chat.id == int(chat)
+from app.utils.ranks import get_chat_id
 
 
 class IsChatMessage(Filter):
 
     async def __call__(self, message: Message) -> bool:
-        with open("chat.txt", "r") as f:
-            chat: str = f.read()
-        return message.chat.id == int(chat)
+        if message.chat.type != "group":
+            return False
+        return (await get_chat_id()) == message.chat.id
+
+
+class IsChatCallback(Filter):
+
+    async def __call__(self, callback: CallbackQuery) -> bool:
+        if callback.message.chat.type != "group":
+            return False
+        return (await get_chat_id()) == callback.message.chat.id
