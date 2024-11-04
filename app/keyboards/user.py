@@ -11,7 +11,7 @@ def get_user_kb() -> InlineKeyboardMarkup:
         InlineKeyboardButton(text="Предстоящие викторины", callback_data="quizzes"),
         InlineKeyboardButton(text="Новости", callback_data="news"),
         InlineKeyboardButton(text="Изменить почту", callback_data="change_email"),
-        InlineKeyboardButton(text="Получить свой id и никнейм", callback_data="get_id"),
+        InlineKeyboardButton(text="Получить свой id", callback_data="get_id"),
         InlineKeyboardButton(text="Задать вопрос", callback_data="ask_question"),
     )
 

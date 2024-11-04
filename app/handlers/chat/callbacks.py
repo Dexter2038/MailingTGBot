@@ -33,7 +33,9 @@ async def decline_message(callback: CallbackQuery, bot: Bot):
         data = callback.message.text.split("]", maxsplit=1)[0]
         data = data.split("[", maxsplit=1)[1]
         chat_id, msg_id = data.split(", ")
-        if not is_moder(callback.from_user.id) and not is_admin(callback.from_user.id):
+        if not (await is_moder(callback.from_user.id)) and not (
+            await is_admin(callback.from_user.id)
+        ):
             return  # ничего не делать
 
         answer_text = "Ваш вопрос отклонён!"

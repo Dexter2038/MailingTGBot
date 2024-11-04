@@ -4,7 +4,7 @@ import aiofiles
 from aiogram import Bot
 
 
-def init_rank_files() -> None:
+def init_rank_files(admin) -> None:
     """
     Инициализирует файлы рангов, если они не существуют.
 
@@ -14,14 +14,9 @@ def init_rank_files() -> None:
     Если параметр --admin не указан, то файл admin.txt будет создан,
     но ничего в него не будет записано.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--admin", type=int, help="ID администратора")
-    args = parser.parse_args()
-    if args.admin:
+    if admin:
         with open("app/data/admin.txt", mode="w") as f:
-            f.write(str(args.admin))
+            f.write(str(admin))
     else:
         with open("app/data/admin.txt", mode="a") as f:
             pass
@@ -50,7 +45,8 @@ async def get_moders() -> List[Tuple[str, str]]:
         async with aiofiles.open("app/data/moders.txt", mode="r") as f:
             lines = await f.readlines()
             return list(map(lambda line: line.split(" "), lines))
-    except Exception:
+    except Exception as e:
+        print(e)
         return []
 
 

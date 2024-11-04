@@ -29,12 +29,12 @@ def get_chat_kb(chat_link: Optional[str]) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_question_kb(chat_id: int, msg_id: int) -> InlineKeyboardMarkup:
+def get_question_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
             text="Отклонить вопрос",
-            callback_data=f"decline_question",
+            callback_data="decline_question",
         )
     )
     return builder.as_markup()

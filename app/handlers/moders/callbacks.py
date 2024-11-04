@@ -1,6 +1,5 @@
 from aiogram import F, Bot, Router
 from aiogram.types import CallbackQuery
-from app.filters.moder import IsModerCallback
 from app.keyboards.moder import get_chat_kb, get_moder_kb
 from app.utils.ranks import get_chat_link
 

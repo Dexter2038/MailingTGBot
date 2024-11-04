@@ -9,3 +9,5 @@ token.json
 token.pickle
 old_app/
 .vscode
+helper
+instruct.md

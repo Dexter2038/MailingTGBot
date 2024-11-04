@@ -858,4 +858,4 @@ async def echo_message(message: Message) -> None:
     :param message: Объект Message, представляющий отправленное сообщение.
     :return: None
     """
-    return
+    await message.answer("Чтобы начать, напишите /start")

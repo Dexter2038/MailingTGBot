@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Tuple
 
 from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup
+
 from google.auth.external_account_authorized_user import Credentials
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -18,6 +19,13 @@ from app.keyboards.user import get_confirm_mailing_kb
 
 # При изменении удалить файл token.json.
 SCOPES: List[str] = ["https://mail.google.com/"]
+
+
+def init_mailing() -> None:
+    """
+    Инициализирует credentials.json и token.json.
+    """
+    gmail_authenticate()
 
 
 def gmail_authenticate() -> Any:
@@ -59,9 +67,6 @@ def gmail_authenticate() -> Any:
         exit(code=403)
 
 
-service = gmail_authenticate()
-
-
 def build_message(destination, title, body) -> Dict[str, str]:
     """
     Функция создает сообщение электронной почты на основе
@@ -86,7 +91,7 @@ def build_message(destination, title, body) -> Dict[str, str]:
     return {"raw": urlsafe_b64encode(message.as_bytes()).decode()}
 
 
-def send_message(service, destination, title, body) -> Any:
+def send_message(destination, title, body) -> Any:
     """
     Отправляет сообщение на адрес(а) destination
     с темой title и текстом body.
@@ -102,6 +107,7 @@ def send_message(service, destination, title, body) -> Any:
         dict: словарь с информацией о отправленном сообщении.
     """
 
+    service = gmail_authenticate()
     return (
         service.users()
         .messages()
@@ -137,7 +143,7 @@ async def make_mailing(text: str, bot: Bot) -> bool:
         else:
             title = text
 
-        send_message(service, emails, title, text)
+        send_message(emails, title, text)
 
         return True
 
@@ -177,7 +183,7 @@ async def make_confirm_mailing(text: str, bot: Bot) -> bool:
         else:
             title: str = text
 
-        send_message(service, emails, title, text)
+        send_message(emails, title, text)
 
         return True
 

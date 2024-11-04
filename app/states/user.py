@@ -2,4 +2,6 @@ from aiogram.fsm.state import State, StatesGroup
 
 
 class User(StatesGroup):
-    pass
+    change_email = State()
+    ask_question = State()
+    register_email = State()

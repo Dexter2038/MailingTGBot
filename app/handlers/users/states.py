@@ -2,7 +2,7 @@ from aiogram import Bot, Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.database.actions import modify_email
+from app.database.actions import create_user, modify_email
 from app.states.user import User
 from app.keyboards.user import get_back_kb
 from app.utils.ask import ask_question
@@ -74,4 +74,35 @@ async def ask_question_state(message: Message, state: FSMContext, bot: Bot) -> N
         await message.answer(
             "Ваш вопрос не отправлен. Попробуйте позже", reply_markup=get_back_kb()
         )
+    await state.clear()
+
+
+@router.message(User.register_email)
+async def register_email_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает сообщение, отправленное пользователем для регистрации email.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Проверяем, является ли email корректным.
+    2. Если email корректен, сохраняем его в базе данных.
+    3. Оповещаем пользователя о результате.
+    4. Очищаем текущее состояние машины состояний.
+    """
+    if not validate_email(message.text):
+        await message.answer("Некорректная почта. Попробуйте еще раз.")
+        await state.set_state(User.register_email)
+        return
+
+    result = create_user(message.from_user.id, message.text, message.from_user.username)
+    if not result:
+        await message.answer(
+            "Вы не зарегистрировались. Попробуйте ещё раз", reply_markup=get_back_kb()
+        )
+        return
+
+    await message.answer("Вы успешно зарегистрировались!", reply_markup=get_back_kb())
     await state.clear()

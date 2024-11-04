@@ -1,5 +1,6 @@
+from os import environ
 from app.database.models import init_db
-from app.utils.mailing import gmail_authenticate
+from app.utils.mailing import init_mailing
 from app.utils.ranks import init_rank_files
 
 
@@ -9,11 +10,16 @@ def initialize_app() -> None:
 
     Эта функция инициализирует базу данных, почтовый сервис и систему рангов.
     """
-    # Инициализация системы рангов
-    init_rank_files()
+    try:
+        # Инициализация базы данных
+        init_db()
 
-    # Инициализация базы данных
-    init_db()
+        # Инициализация почтового сервиса
+        init_mailing()
 
-    # Инициализация почтового сервиса
-    gmail_authenticate()
+        # Инициализация системы рангов
+        init_rank_files(environ["ADMIN"])
+
+    except Exception as e:
+        print(e)
+        exit()

@@ -1,0 +1,9 @@
+.env
+.git
+.vscode
+__pycache__
+old_app
+venv
+token.json
+credentials.json
+helper

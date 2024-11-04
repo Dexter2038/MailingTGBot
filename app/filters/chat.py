@@ -14,7 +14,7 @@ class IsChatMessage(Filter):
         :param message: Объект Message, представляющий сообщение.
         :return: True, если сообщение является сообщением из чата, False в противном случае.
         """
-        if message.chat.type != "group":
+        if message.chat.type != "group" and message.chat.type != "supergroup":
             return False
         return (await get_chat_id()) == message.chat.id
 
@@ -29,6 +29,9 @@ class IsChatCallback(Filter):
         :param callback: Объект CallbackQuery, представляющий callback-запрос.
         :return: True, если callback-запрос является callback-запросом из чата, False в противном случае.
         """
-        if callback.message.chat.type != "group":
+        if (
+            callback.message.chat.type != "group"
+            and callback.message.chat.type != "supergroup"
+        ):
             return False
         return (await get_chat_id()) == callback.message.chat.id

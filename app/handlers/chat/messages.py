@@ -25,11 +25,14 @@ async def answer_to_message(message: Message, bot: Bot):
     """
 
     try:
-        data = message.text.split("]", maxsplit=1)[0]
+        data = message.reply_to_message.text.split("]", maxsplit=1)[0]
         data = data.split("[", maxsplit=1)[1]
         chat_id, msg_id = data.split(", ")
-        if not is_moder(message.from_user.id) and not is_admin(message.from_user.id):
+        if not (await is_moder(message.from_user.id)) and not (
+            await is_admin(message.from_user.id)
+        ):
             await message.delete()
+            return
 
         answer_text = f"{message.text}\n\nНа ваш вопрос ответила команда escape!"
 
@@ -37,13 +40,15 @@ async def answer_to_message(message: Message, bot: Bot):
 
         await message.reply_to_message.delete()
         await message.delete()
-
-    except Exception:
+        print("Дошёл")
+    except Exception as e:
+        print(e)
         return  # ничего не делать
 
 
 @router.message(Command("initchat"), F.chat.type == "group")
-async def init_chat_command(message: Message):
+@router.message(Command("initchat"), F.chat.type == "supergroup")
+async def init_chat_command(message: Message) -> None:
     if await get_chat_id():
         return
 
