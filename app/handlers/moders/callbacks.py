@@ -45,12 +45,14 @@ async def show_chat_callback(callback: CallbackQuery, bot: Bot) -> None:
     3. Если ссылка найдена, отправляем сообщение с этой ссылкой.
     """
     chat_link = await get_chat_link(bot)
+    print(str(chat_link))
 
     if not chat_link:
-        await callback.message.answer(
-            "Чат ещё не инициализирован админом", get_chat_kb()
+        await callback.message.edit_text(
+            "Чат ещё не инициализирован админом", reply_markup=get_chat_kb()
         )
-    else:
-        await callback.message.answer(
-            f"Ссылка на чат: {chat_link}", get_chat_kb(chat_link)
-        )
+        return
+
+    await callback.message.edit_text(
+        f"Ссылка на чат: {chat_link}", reply_markup=get_chat_kb(chat_link)
+    )

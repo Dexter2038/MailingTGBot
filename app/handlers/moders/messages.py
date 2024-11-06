@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.types import Message
 from aiogram.filters import Command
 
@@ -8,9 +8,8 @@ from app.keyboards.moder import get_moder_kb
 router = Router(name="moder_messages")
 
 
-
 @router.message(Command("start"))
-async def start_command(message: Message) -> None:
+async def start_command(message: Message, bot: Bot) -> None:
     """
     Эта функция обрабатывает команду /start,
     отправляя приветственное сообщение модератору.
@@ -36,4 +35,4 @@ async def echo_message(message: Message) -> None:
     :param message: Объект Message, представляющий отправленное сообщение.
     :return: None
     """
-    return
+    await message.answer("Добро пожаловать, модератор! Чтобы начать, напишите /start")

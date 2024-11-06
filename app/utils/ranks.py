@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import List, Tuple
 
 import aiofiles
@@ -23,6 +24,8 @@ def init_rank_files(admin) -> None:
     with open("app/data/moders.txt", mode="a") as f:
         pass
     with open("app/data/chat.txt", mode="a") as f:
+        pass
+    with open("app/data/subadmins.txt", mode="a") as f:
         pass
 
 
@@ -177,17 +180,20 @@ async def get_chat_link(bot: Bot) -> str:
     Внутренний процесс:
     1. Получаем ID чата вопросов с помощью функции get_chat_id().
     2. Если ID чата пуст, возвращаем пустую строку.
-    3. Получаем ссылку на чат вопросов с помощью функции export_chat_invite_link().
+    3. Получаем ссылку на чат вопросов с помощью функции create_chat_invite_link().
     4. Если операция проходит успешно, возвращаем ссылку на чат.
     5. Если возникает ошибка, возвращаем пустую строку.
     """
     chat_id = await get_chat_id()
 
-    if not chat_id:
+    if chat_id == 0:
         return ""
 
     try:
-        chat_link = await bot.export_chat_invite_link(chat_id)
+        cur_time = datetime.now(UTC)
+        final_time = cur_time + timedelta(days=1)
+        chat_link = await bot.create_chat_invite_link(chat_id, expire_date=final_time)
+        chat_link = chat_link.invite_link
         return chat_link
     except Exception:
         return ""
@@ -215,7 +221,8 @@ async def add_moder(id: str, username: str) -> bool:
     async with aiofiles.open("app/data/moders.txt", mode="a+") as f:
         lines = await f.readlines()
         moders = list(map(lambda line: line.split(" "), lines))
-        if [id, username] in moders:
+        ismoder = any(id in moder for moder in moders)
+        if ismoder in moders:
             return False
         else:
             await f.write(f"{id} {username}\n")
@@ -240,12 +247,15 @@ async def del_moder(id_or_username: str) -> bool:
     5. Если модератор найден, удаляем его из файла.
     6. Если модератор не найден, возвращаем False.
     """
-    async with aiofiles.open("app/data/moders.txt", mode="w+") as f:
+    async with aiofiles.open("app/data/moders.txt", mode="r+") as f:
         lines = await f.readlines()
         moders = list(map(lambda line: line.split(" "), lines))
-        if [id_or_username] in moders:
+        ismoder = any(id_or_username in moder for moder in moders)
+        if ismoder:
+            await f.seek(0)
+            await f.truncate()
             await f.write(
-                "\n".join([moder for moder in moders if id_or_username not in moder])
+                "\n".join([" ".join(moder) for moder in moders if "123" not in moder])
             )
             return True
         else:
@@ -271,3 +281,66 @@ async def get_admin() -> int:
     async with aiofiles.open("app/data/admin.txt", mode="r") as f:
         admin = await f.read()
         return int(admin) if admin else 0
+
+
+async def get_subadmins() -> list:
+    async with aiofiles.open("app/data/subadmins.txt", mode="r") as f:
+        lines = await f.readlines()
+        return [line.strip().split(" ") for line in lines]
+
+
+async def del_subadmin(id_or_username: str) -> bool:
+    async with aiofiles.open("app/data/subadmins.txt", mode="r+") as f:
+        lines = await f.readlines()
+        subadmins = [line.strip().split(" ") for line in lines]
+        if any(id_or_username in subadmin for subadmin in subadmins):
+            await f.seek(0)
+            await f.truncate()
+            await f.write(
+                "\n".join(
+                    [
+                        " ".join(subadmin)
+                        for subadmin in subadmins
+                        if id_or_username not in subadmin
+                    ]
+                )
+            )
+            return True
+        else:
+            return False
+
+
+async def add_subadmin(id: str, username: str) -> bool:
+    async with aiofiles.open("app/data/subadmins.txt", mode="a+") as f:
+        lines = await f.readlines()
+        subadmins = [line.strip().split(" ") for line in lines]
+        if any(id in subadmin for subadmin in subadmins):
+            return False
+        else:
+            await f.write(f"{id} {username}\n")
+            return True
+
+
+async def is_subadmin(id_or_username: str) -> bool:
+    async with aiofiles.open("app/data/subadmins.txt", mode="r") as f:
+        lines = await f.readlines()
+        subadmins = [line.strip().split(" ") for line in lines]
+        return any(id_or_username in subadmin for subadmin in subadmins)
+
+
+async def get_subadmin(id_or_username: str) -> str:
+    async with aiofiles.open("app/data/subadmins.txt", mode="r") as f:
+        lines = await f.readlines()
+        subadmins = [line.strip().split(" ") for line in lines]
+        for subadmin in subadmins:
+            if id_or_username in subadmin:
+                return " ".join(subadmin)
+        return None
+
+
+async def is_able_to_answer(user_id: int) -> bool:
+    return (
+        (await is_moder(user_id))
+        or (await is_admin(user_id))
+        or (await is_subadmin(user_id))
+    )

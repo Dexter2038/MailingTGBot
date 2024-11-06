@@ -1,10 +1,10 @@
 from aiogram.filters import Filter
 from aiogram.types import Message, CallbackQuery
 
-from app.utils.ranks import is_moder
+from app.utils.ranks import is_subadmin
 
 
-class IsModerMessage(Filter):
+class IsSubAdminMessage(Filter):
     """
     Фильтр, который проверяет, является ли автор сообщения модератором.
     """
@@ -16,10 +16,10 @@ class IsModerMessage(Filter):
         """
         if message.chat.type != "private":
             return False
-        return await is_moder(message.chat.id)
+        return is_subadmin(message.chat.id)
 
 
-class IsModerCallback(Filter):
+class IsSubAdminCallback(Filter):
     """
     Фильтр, который проверяет, является ли автор callback-запроса модератором.
     """
@@ -31,4 +31,4 @@ class IsModerCallback(Filter):
         """
         if callback.message.chat.type != "private":
             return False
-        return await is_moder(callback.from_user.id)
+        return is_subadmin(callback.from_user.id)

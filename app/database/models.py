@@ -70,11 +70,8 @@ def setup_models() -> None:
             )
             with connection.cursor() as cursor:
                 cursor.execute(users_query)
-                print("Таблица users успешно инициализирована")
                 cursor.execute(confirms_query)
-                print("Таблица confirms успешно инициализирована")
                 cursor.execute(users_confirms_query)
-                print("Таблица users_confirms успешно инициализирована")
             print("Модели успешно инициализированы")
     except Error as e:
         print(e)

@@ -3,7 +3,6 @@ from aiogram import Bot, Router, F
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.filters.admin import IsAdminCallback
 
 from app.utils.info import (
     get_about_quiz,
@@ -48,8 +47,6 @@ from app.keyboards.admin import (
 )
 
 router = Router(name="admin_callbacks")
-
-router.callback_query.filter(IsAdminCallback())
 
 
 @router.callback_query(F.data == "show_moders")

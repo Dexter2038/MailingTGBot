@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 
 from app.filters.chat import IsChatMessage
-from app.utils.ranks import get_chat_id, is_admin, is_moder, set_chat_id
+from app.utils.ranks import get_chat_id, is_able_to_answer, set_chat_id
 
 router = Router(name="chat_messages")
 
@@ -28,9 +28,7 @@ async def answer_to_message(message: Message, bot: Bot):
         data = message.reply_to_message.text.split("]", maxsplit=1)[0]
         data = data.split("[", maxsplit=1)[1]
         chat_id, msg_id = data.split(", ")
-        if not (await is_moder(message.from_user.id)) and not (
-            await is_admin(message.from_user.id)
-        ):
+        if not await is_able_to_answer(message.from_user.id):
             await message.delete()
             return
 
@@ -51,6 +49,8 @@ async def answer_to_message(message: Message, bot: Bot):
 async def init_chat_command(message: Message) -> None:
     if await get_chat_id():
         return
+
+    await message.chat.create_invite_link()
 
     await set_chat_id(message.chat.id)
     await message.answer("Чат успешно инициализирован!")

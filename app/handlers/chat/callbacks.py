@@ -2,7 +2,7 @@ from aiogram import F, Bot, Router
 from aiogram.types import CallbackQuery
 
 from app.filters.chat import IsChatCallback
-from app.utils.ranks import is_admin, is_moder
+from app.utils.ranks import is_able_to_answer
 
 router = Router(name="chat_callbacks")
 
@@ -33,9 +33,7 @@ async def decline_message(callback: CallbackQuery, bot: Bot):
         data = callback.message.text.split("]", maxsplit=1)[0]
         data = data.split("[", maxsplit=1)[1]
         chat_id, msg_id = data.split(", ")
-        if not (await is_moder(callback.from_user.id)) and not (
-            await is_admin(callback.from_user.id)
-        ):
+        if not await is_able_to_answer(callback.from_user.id):
             return  # ничего не делать
 
         answer_text = "Ваш вопрос отклонён!"

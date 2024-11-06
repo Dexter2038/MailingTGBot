@@ -21,10 +21,10 @@ def get_back_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def get_chat_kb(chat_link: Optional[str]) -> InlineKeyboardMarkup:
+def get_chat_kb(chat_link: Optional[str] = "") -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     if chat_link:
-        builder.row(InlineKeyboardButton(text="Ссылка на чат", url=chat_link))
+        builder.row(InlineKeyboardButton(text="Ссылка на чат", url=f"{chat_link}"))
     builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
     return builder.as_markup()
 

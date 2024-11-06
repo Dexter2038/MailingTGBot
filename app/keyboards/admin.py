@@ -3,9 +3,15 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-def get_admin_kb() -> InlineKeyboardMarkup:
+def get_admin_kb(is_subadmin: bool = True) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.row(
+    if not is_subadmin:
+        builder.add(
+            InlineKeyboardButton(
+                text="Показать субадминистраторов", callback_data="show_subadmins"
+            )
+        )
+    builder.add(
         InlineKeyboardButton(text="Показать модераторов", callback_data="show_moders"),
         InlineKeyboardButton(text="Добавить модератора", callback_data="add_moderator"),
         InlineKeyboardButton(text="Сделать рассылку", callback_data="make_mailing"),
@@ -52,6 +58,59 @@ def get_moder_kb(moder_id: str) -> InlineKeyboardMarkup:
 
 
 def get_add_moder_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(InlineKeyboardButton(text="Отмена", callback_data="start"))
+    return builder.as_markup()
+
+
+def get_del_moder_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="Удалить другого модератора", callback_data="show_moders"
+        )
+    )
+    builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
+    return builder.as_markup()
+
+
+def get_subadmin_kb(subadmin_id: str) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="Удалить субадмина", callback_data=f"del_subadmin_{subadmin_id}"
+        )
+    )
+    builder.row(InlineKeyboardButton(text="Назад", callback_data="show_subadmins"))
+    return builder.as_markup()
+
+
+def get_subadmins_kb(active_ids: Optional[List[str]] = None) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    if active_ids:
+        for subadmin_id in active_ids:
+            builder.row(
+                InlineKeyboardButton(
+                    text=f"Субадмин {subadmin_id}",
+                    callback_data=f"subadmin_{subadmin_id}",
+                )
+            )
+    builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
+    return builder.as_markup()
+
+
+def get_del_subadmin_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.row(
+        InlineKeyboardButton(
+            text="Удалить другого субадмина", callback_data="show_subadmins"
+        )
+    )
+    builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
+    return builder.as_markup()
+
+
+def get_add_subadmin_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="Отмена", callback_data="start"))
     return builder.as_markup()
@@ -186,17 +245,6 @@ def get_chat_kb(chat_link: Optional[str]) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     if chat_link:
         builder.row(InlineKeyboardButton(text="Ссылка на чат", url=chat_link))
-    builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
-    return builder.as_markup()
-
-
-def get_del_moder_kb() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    builder.row(
-        InlineKeyboardButton(
-            text="Удалить другого модератора", callback_data="show_moders"
-        )
-    )
     builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
     return builder.as_markup()
 
