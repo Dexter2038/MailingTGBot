@@ -31,7 +31,7 @@ async def change_email_state(message: Message, state: FSMContext) -> None:
         await message.answer(
             "Некорректная почта. Попробуйте еще раз.", reply_markup=get_back_kb()
         )
-        await state.set_state(User.change_email)
+        await state.clear()
         return
 
     if modify_email(message.from_user.id, message.text):

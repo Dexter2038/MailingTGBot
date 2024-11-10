@@ -2,8 +2,15 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
+from app.database.actions import add_confirm_user_mailing
 from app.keyboards.user import get_user_kb, get_back_kb
-from app.utils.info import get_about_quiz, get_faq, get_news_user, get_quizzes_user
+from app.utils.info import (
+    get_about_quiz,
+    get_faq,
+    get_news_user,
+    get_quizzes_user,
+    get_rules,
+)
 from app.states.user import User
 
 
@@ -53,9 +60,7 @@ async def about_quiz_callback(callback: CallbackQuery) -> None:
         )
         return
 
-    await callback.message.edit_text(
-        f"О викторине:\n\n{about_quiz}", reply_markup=get_back_kb()
-    )
+    await callback.message.edit_text(about_quiz, reply_markup=get_back_kb())
 
 
 @router.callback_query(F.data == "faq")
@@ -82,9 +87,7 @@ async def faq_callback(callback: CallbackQuery) -> None:
         )
         return
 
-    await callback.message.edit_text(
-        f"Частые вопросы:\n\n{faq}", reply_markup=get_back_kb()
-    )
+    await callback.message.edit_text(faq, reply_markup=get_back_kb())
 
 
 @router.callback_query(F.data == "quizzes")
@@ -111,7 +114,6 @@ async def quizzes_callback(callback: CallbackQuery) -> None:
         )
         return
 
-    text = "Предстоящие викторины:\n\n"
     text += "\n".join(quizzes)
 
     await callback.message.edit_text(text, reply_markup=get_back_kb())
@@ -139,10 +141,35 @@ async def news_callback(callback: CallbackQuery) -> None:
         await callback.message.edit_text("Нет новостей", reply_markup=get_back_kb())
         return
 
-    text = "Новости:\n\n"
-    text += "\n".join(news)
+    text = "\n".join(news)
 
     await callback.message.edit_text(text, reply_markup=get_back_kb())
+
+
+@router.callback_query(F.data == "rules")
+async def rules_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра правил.
+    Она очищает текущее состояние, получает текст правил из базы данных
+    и отправляет сообщение с его данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст правил из базы данных с помощью функции get_rules().
+    2. Если текст правил не найден, отправляем сообщение о том, что правил не найдены.
+    3. Если правила найдены, отправляем сообщение с данными правил.
+    """
+    rules = await get_rules()
+
+    if not rules:
+        await callback.message.edit_text(
+            "Правила не выставлены", reply_markup=get_back_kb()
+        )
+        return
+
+    await callback.message.edit_text(rules, reply_markup=get_back_kb())
 
 
 @router.callback_query(F.data == "change_email")
@@ -208,3 +235,48 @@ async def ask_question_callback(callback: CallbackQuery, state: FSMContext) -> N
     await callback.message.edit_text("Напишите ваш вопрос", reply_markup=get_back_kb())
 
     await state.set_state(User.ask_question)
+
+
+@router.callback_query(F.data.startswith("participate_"))
+async def participate_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатывает callback-запрос для участия в конкурсе.
+    Она отправляет сообщение с инструкцией для участия в конкурсе.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Добавляем ID пользователя в список участников конкурса.
+    2. Удаляем сообщение с инструкцией для участия в конкурсе.
+    3. В случае ошибки оповещаем, что пользователь уже участвует в конкурсе.
+    """
+    _, id = callback.data.split("_")
+    try:
+        await add_confirm_user_mailing(callback.from_user.id, int(id))
+        await callback.message.delete()
+        await callback.answer("Вы успешно участвуете в конкурсе", show_alert=True)
+    except Exception as e:
+        print(e)
+        await callback.answer("Вы уже участвуете в конкурсе", show_alert=True)
+        await callback.message.delete()
+
+
+@router.callback_query(F.data == "not_participate")
+async def not_participate_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Обрабатываем callback-запрос для отказа от участия в конкурсе.
+    Он удаляет сообщение с инструкцией для отказа от участия в конкурсе.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Удаляем сообщение с инструкцией для отказа от участия в конкурсе.
+    """
+    await callback.message.delete()
+    await callback.answer(
+        "Вы успешно отказались от участия в конкурсе", show_alert=True
+    )

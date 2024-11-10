@@ -1,6 +1,6 @@
 from aiogram import Router
 
-from app.filters.admin import IsAdminMessage, IsAdminCallback
+from app.filters.subadmin import IsSubAdminMessage, IsSubAdminCallback
 
 from .callbacks import router as callbacks_router
 from .commands import router as commands_router
@@ -9,7 +9,7 @@ from .states import router as states_router
 
 def get_subadmin_router() -> Router:
     """
-    Функция, которая возвращает роутер сабадминистратора.
+    Функция, которая возвращает роутер субадминистратора.
     """
     router = Router(name="admin")
 
@@ -19,7 +19,7 @@ def get_subadmin_router() -> Router:
     router.include_router(commands_router)
 
     # Добавляем фильтры для роутера
-    router.message.filter(IsAdminMessage())
-    router.callback_query.filter(IsAdminCallback())
+    router.message.filter(IsSubAdminMessage())
+    router.callback_query.filter(IsSubAdminCallback())
 
     return router

@@ -40,6 +40,33 @@ async def get_about_quiz() -> str | None:
         return records[0].get("text") if records else None
 
 
+async def edit_rules(text: str) -> bool:
+    """Редактирует единственную запись rules.
+
+    Args:
+        text (str): Новый текст для rules.
+
+    Returns:
+        bool: True, если запись была успешно добавлена, иначе False.
+    """
+    async with get_db() as db:
+        rules = db.table("rules")
+        await rules.truncate()
+        return bool(await rules.insert({"text": text}))
+
+
+async def get_rules() -> str | None:
+    """Получает единственную запись rules.
+
+    Returns:
+        str|None: Текст rules, если запись существует, иначе None.
+    """
+    async with get_db() as db:
+        rules = db.table("rules")
+        records = await rules.all()
+        return records[0].get("text") if records else None
+
+
 async def edit_faq(text: str) -> bool:
     """Редактирует единственную запись FAQ.
 

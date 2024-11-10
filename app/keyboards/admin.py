@@ -5,30 +5,30 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def get_admin_kb(is_subadmin: bool = True) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    if not is_subadmin:
-        builder.add(
-            InlineKeyboardButton(
-                text="Показать субадминистраторов", callback_data="show_subadmins"
-            )
-        )
     builder.add(
-        InlineKeyboardButton(text="Показать модераторов", callback_data="show_moders"),
-        InlineKeyboardButton(text="Добавить модератора", callback_data="add_moderator"),
         InlineKeyboardButton(text="Сделать рассылку", callback_data="make_mailing"),
-        InlineKeyboardButton(text="Показать рассылки", callback_data="show_confirms"),
+        InlineKeyboardButton(
+            text="Рассылки с подтверждением", callback_data="show_confirms"
+        ),
+        InlineKeyboardButton(
+            text="Предстоящие викторины", callback_data="show_quizzes"
+        ),
+        InlineKeyboardButton(text="О викторине", callback_data="edit_about_quiz"),
+        InlineKeyboardButton(text="Частые вопросы", callback_data="edit_faq"),
+        InlineKeyboardButton(text="Новости", callback_data="show_all_news"),
+        InlineKeyboardButton(text="Правила", callback_data="edit_rules"),
+        InlineKeyboardButton(text="Войти в чат вопросов", callback_data="show_chat"),
         InlineKeyboardButton(
             text="Сбросить чат вопросов", callback_data="ask_del_chat"
         ),
-        InlineKeyboardButton(text="Показать викторины", callback_data="show_quizzes"),
-        InlineKeyboardButton(text="Показать новости", callback_data="show_all_news"),
-        InlineKeyboardButton(text="Показать чат", callback_data="show_chat"),
-        InlineKeyboardButton(
-            text="Редактировать о викторине", callback_data="edit_about_quiz"
-        ),
-        InlineKeyboardButton(
-            text="Редактировать частые вопросы", callback_data="edit_faq"
-        ),
+        InlineKeyboardButton(text="Модераторы", callback_data="show_moders"),
     )
+    if not is_subadmin:
+        builder.add(
+            InlineKeyboardButton(
+                text="Субадминистраторы", callback_data="show_subadmins"
+            )
+        )
     builder.adjust(1)
     return builder.as_markup()
 
@@ -42,6 +42,9 @@ def get_moders_kb(active_ids: Optional[List[str]] = None) -> InlineKeyboardMarku
                     text=f"Модератор {moder_id}", callback_data=f"moder_{moder_id}"
                 )
             )
+    builder.row(
+        InlineKeyboardButton(text="Добавить модератора", callback_data="add_moderator")
+    )
     builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
     return builder.as_markup()
 
@@ -78,7 +81,8 @@ def get_subadmin_kb(subadmin_id: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(
-            text="Удалить субадмина", callback_data=f"del_subadmin_{subadmin_id}"
+            text="Удалить субадминистратора",
+            callback_data=f"del_subadmin_{subadmin_id}",
         )
     )
     builder.row(InlineKeyboardButton(text="Назад", callback_data="show_subadmins"))
@@ -91,10 +95,15 @@ def get_subadmins_kb(active_ids: Optional[List[str]] = None) -> InlineKeyboardMa
         for subadmin_id in active_ids:
             builder.row(
                 InlineKeyboardButton(
-                    text=f"Субадмин {subadmin_id}",
+                    text=f"Субадминистратор {subadmin_id}",
                     callback_data=f"subadmin_{subadmin_id}",
                 )
             )
+    builder.row(
+        InlineKeyboardButton(
+            text="Добавить субадминистратора", callback_data="add_subadmin"
+        )
+    )
     builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
     return builder.as_markup()
 
@@ -141,18 +150,6 @@ def get_confirms_kb(active_ids: Optional[List[str]] = None) -> InlineKeyboardMar
                     callback_data=f"show_confirm_{confirm_id}",
                 )
             )
-    builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
-    return builder.as_markup()
-
-
-def get_about_quiz_kb() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
-    return builder.as_markup()
-
-
-def get_faq_kb() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="Назад", callback_data="start"))
     return builder.as_markup()
 

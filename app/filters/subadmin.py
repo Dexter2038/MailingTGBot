@@ -16,7 +16,7 @@ class IsSubAdminMessage(Filter):
         """
         if message.chat.type != "private":
             return False
-        return is_subadmin(message.chat.id)
+        return await is_subadmin(message.chat.id)
 
 
 class IsSubAdminCallback(Filter):
@@ -31,4 +31,4 @@ class IsSubAdminCallback(Filter):
         """
         if callback.message.chat.type != "private":
             return False
-        return is_subadmin(callback.from_user.id)
+        return await is_subadmin(callback.from_user.id)

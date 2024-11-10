@@ -255,7 +255,9 @@ async def del_moder(id_or_username: str) -> bool:
             await f.seek(0)
             await f.truncate()
             await f.write(
-                "\n".join([" ".join(moder) for moder in moders if "123" not in moder])
+                "\n".join(
+                    [" ".join(moder) for moder in moders if id_or_username not in moder]
+                )
             )
             return True
         else:
@@ -325,7 +327,7 @@ async def is_subadmin(id_or_username: str) -> bool:
     async with aiofiles.open("app/data/subadmins.txt", mode="r") as f:
         lines = await f.readlines()
         subadmins = [line.strip().split(" ") for line in lines]
-        return any(id_or_username in subadmin for subadmin in subadmins)
+        return any(str(id_or_username) in subadmin for subadmin in subadmins)
 
 
 async def get_subadmin(id_or_username: str) -> str:
@@ -334,7 +336,7 @@ async def get_subadmin(id_or_username: str) -> str:
         subadmins = [line.strip().split(" ") for line in lines]
         for subadmin in subadmins:
             if id_or_username in subadmin:
-                return " ".join(subadmin)
+                return subadmin
         return None
 
 

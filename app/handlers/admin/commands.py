@@ -20,6 +20,7 @@ from app.utils.info import (
     add_news,
     add_quiz,
     edit_about_quiz,
+    edit_rules,
     get_about_quiz,
     edit_faq,
     get_faq,
@@ -30,6 +31,7 @@ from app.utils.info import (
     get_quiz,
     edit_quiz,
     del_quiz,
+    get_rules,
 )
 
 from app.database.actions import end_confirm, get_all_confirms, get_confirm
@@ -53,7 +55,7 @@ async def start_command(message: Message) -> None:
     """
     await message.answer(
         "Привет, администратор! Команды доступны по команде /commands",
-        reply_markup=get_admin_kb(),
+        reply_markup=get_admin_kb(is_subadmin=False),
     )
 
 
@@ -76,9 +78,9 @@ async def commands_command(message: Message) -> None:
         "/addmoder <id> <username> - назначить пользователя модератором\n"
         "/delmoder <id/username> - убрать пользователя из списка модераторов\n"
         "/moders - посмотреть список модераторов\n"
-        "/addsubadmin <id> <username> - назначить пользователя сабадминистратором\n"
-        "/delsubadmin <id/username> - убрать пользователя из списка сабадминистраторов\n"
-        "/subadmins - посмотреть список сабадминистраторов\n"
+        "/addsubadmin <id> <username> - назначить пользователя субадминистратором\n"
+        "/delsubadmin <id/username> - убрать пользователя из списка субадминистраторов\n"
+        "/subadmins - посмотреть список субадминистраторов\n"
         "/mailing <текст> - сделать рассылку всем пользователям\n"
         "/confirms - посмотреть список рассылки с подтверждением\n"
         "/confirm <id> - посмотреть участников конкретной рассылки с подтверждением\n"
@@ -91,6 +93,8 @@ async def commands_command(message: Message) -> None:
         "/aboutquiz - посмотреть информацию о викторине\n"
         "/editfaq <текст> - редактировать информацию о частых вопросах\n"
         "/faq - посмотреть информацию о частых вопросах\n"
+        "/editrules <текст> - редактировать правила\n"
+        "/rules - посмотреть правила\n"
         "/news - посмотреть новости\n"
         "/editnews <id> <текст> - редактировать новость\n"
         "/delnews <id> - удалить новость\n"
@@ -650,6 +654,56 @@ async def show_faq_command(message: Message) -> None:
         return
 
     await message.answer(faq)
+
+
+@router.message(Command("editrules"))
+async def edit_faq_command(message: Message, command: CommandObject) -> None:
+    """
+    Команда для редактирования правил.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param command: Объект CommandObject, представляющий команду.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст для редактирования правил.
+    2. Если текст пустой, выводим сообщение об ошибке.
+    3. Если текст непустой, обновляем правила.
+    """
+    args = command.args
+
+    if not args:
+        await message.answer("Неверный формат команды. Используйте /editrules <текст>")
+        return
+
+    result = await edit_rules(args)
+
+    if result:
+        await message.answer("Правила обновлены")
+    else:
+        await message.answer("Правила не обновлены. Произошла ошибка")
+
+
+@router.message(Command("rules"))
+async def show_faq_command(message: Message) -> None:
+    """
+    Команда для просмотра правил.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем правила с помощью функции get_rules().
+    2. Если информация не найдена, выводим сообщение об этом.
+    3. Если информация найдена, отправляем её в ответе на сообщение пользователя.
+    """
+    rules = await get_rules()
+
+    if not rules:
+        await message.answer("Правила не найдены")
+        return
+
+    await message.answer(rules)
 
 
 @router.message(Command("news"))

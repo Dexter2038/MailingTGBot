@@ -13,6 +13,7 @@ from app.utils.info import (
     del_quiz,
     get_quiz,
     del_news,
+    get_rules,
 )
 from app.utils.ranks import del_moder, get_moder, get_moders, reset_chat, get_chat_link
 from app.database.actions import get_all_confirms, get_confirm, end_confirm
@@ -20,12 +21,12 @@ from app.database.actions import get_all_confirms, get_confirm, end_confirm
 from app.states.admin import Admin
 
 from app.keyboards.admin import (
-    get_about_quiz_kb,
     get_add_confirm_kb,
     get_add_moder_kb,
     get_add_news_kb,
     get_add_quiz_kb,
     get_admin_kb,
+    get_back_kb,
     get_chat_kb,
     get_confirm_kb,
     get_del_chat_kb,
@@ -35,7 +36,6 @@ from app.keyboards.admin import (
     get_edit_news_kb,
     get_edit_quiz_kb,
     get_end_confirm_kb,
-    get_faq_kb,
     get_mailing_kb,
     get_moders_kb,
     get_moder_kb,
@@ -454,14 +454,14 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
     if not about_quiz:
         await callback.message.edit_text(
             "Отправьте текст для выставления в О викторине",
-            reply_markup=get_about_quiz_kb(),
+            reply_markup=get_back_kb(),
         )
         return
 
     await callback.message.edit_text(
         f"О викторине:\n{about_quiz}\n\n"
         "Отправьте текст для выставления в О викторине",
-        reply_markup=get_about_quiz_kb(),
+        reply_markup=get_back_kb(),
     )
 
 
@@ -488,14 +488,47 @@ async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
     if not faq:
         await callback.message.edit_text(
             "Отправьте текст для выставления в Частые вопросы",
-            reply_markup=get_faq_kb(),
+            reply_markup=get_back_kb(),
         )
         return
 
     await callback.message.edit_text(
         f"Частые вопросы:\n{faq}\n\n"
         "Отправьте текст для выставления в Частые вопросы",
-        reply_markup=get_faq_kb(),
+        reply_markup=get_back_kb(),
+    )
+
+
+@router.callback_query(F.data == "edit_rules")
+async def edit_rules_callback(callback: CallbackQuery, state: FSMContext) -> None:
+    """
+    Эта функция обрабатывает callback-запрос для редактирования правил.
+    Она изменяет состояние машины состояний на Admin.edit_rules и отправляет сообщение
+    с текущим текстом правил и инструкцией для редактирования.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем состояние машины состояний на Admin.edit_rules для редактирования правил.
+    2. Получаем текущий текст правил из базы данных.
+    3. Если текст правил не существует, отправляем сообщение с инструкцией для добавления текста.
+    4. Если текст правил существует, отправляем сообщение с текущим текстом и инструкцией для редактирования.
+    """
+    await state.set_state(Admin.edit_rules)
+    rules = await get_rules()
+
+    if not rules:
+        await callback.message.edit_text(
+            "Отправьте текст для выставления в правилах",
+            reply_markup=get_back_kb(),
+        )
+        return
+
+    await callback.message.edit_text(
+        f"Правила:\n{rules}\n\n" "Отправьте текст для выставления в правилах",
+        reply_markup=get_back_kb(),
     )
 
 

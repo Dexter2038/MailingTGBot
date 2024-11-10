@@ -12,6 +12,7 @@ from app.utils.info import (
     edit_faq,
     edit_news,
     edit_quiz,
+    edit_rules,
 )
 from app.utils.mailing import make_mailing
 from app.utils.ranks import add_moder, del_moder
@@ -397,6 +398,43 @@ async def edit_quiz_state(message: Message, state: FSMContext) -> None:
     except Exception:
         await message.answer(
             "Викторина не изменена. Произошла ошибка", reply_markup=get_back_kb()
+        )
+
+    await state.clear()
+
+
+@router.message(Admin.edit_rules)
+async def edit_rules_state(message: Message, state: FSMContext) -> None:
+    """
+    Обрабатывает текст, отправленный администратором, и обновляет
+    текст правил.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Извлекаем текст правил из сообщения администратора.
+    2. Пытаемся обновить текст правил в базе данных, вызывая функцию edit_rules().
+    3. Проверяем результат выполнения функции:
+       - Если обновление успешно, отправляем сообщение об успешном изменении.
+       - Если обновление не удалось, отправляем сообщение о неудаче.
+    4. Обрабатываем исключения и отправляем сообщение об ошибке в случае сбоя.
+    5. Очищаем текущее состояние машины состояний.
+    """
+    text = message.text
+
+    try:
+        result = await edit_rules(text)
+
+        if result:
+            await message.answer("Правила изменены", reply_markup=get_back_kb())
+        else:
+            await message.answer("Правила не изменены", reply_markup=get_back_kb())
+
+    except Exception:
+        await message.answer(
+            "Правила не изменены. Произошла ошибка", reply_markup=get_back_kb()
         )
 
     await state.clear()
