@@ -7,7 +7,7 @@ from .commands import router as commands_router
 from .states import router as states_router
 
 
-def get_admin_router() -> Router:
+def get_root_router() -> Router:
     """
     Функция, которая возвращает роутер администратора.
     """

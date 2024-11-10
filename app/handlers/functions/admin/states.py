@@ -1,4 +1,4 @@
-from aiogram import Bot, Router
+from aiogram import Bot
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
@@ -19,10 +19,6 @@ from app.utils.ranks import add_moder, add_subadmin, del_moder
 from app.keyboards.admin import get_back_kb
 
 
-router = Router(name="admin_states")
-
-
-@router.message(Admin.add_moderator)
 async def add_moder_state(message: Message, state: FSMContext) -> None:
     """
     Функция, которая обрабатывает сообщение, отправленное администратором,
@@ -79,7 +75,6 @@ async def add_moder_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.add_subadmin)
 async def add_subadmin_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает сообщение, отправленное администратором,
@@ -135,7 +130,6 @@ async def add_subadmin_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.make_mailing)
 async def make_mailing_state(message: Message, state: FSMContext, bot: Bot) -> None:
     """
     Эта функция обрабатывает сообщение, отправленное администратором,
@@ -175,7 +169,6 @@ async def make_mailing_state(message: Message, state: FSMContext, bot: Bot) -> N
     await state.clear()
 
 
-@router.message(Admin.add_news)
 async def add_news_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает сообщение, отправленное администратором,
@@ -214,7 +207,6 @@ async def add_news_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.add_quiz)
 async def add_quiz_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает сообщение, отправленное администратором,
@@ -253,7 +245,6 @@ async def add_quiz_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.add_confirm)
 async def add_confirm_state(message: Message, state: FSMContext) -> None:
     """
     Эта функция обрабатывает сообщение, отправленное администратором,
@@ -297,7 +288,6 @@ async def add_confirm_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.edit_about_quiz)
 async def edit_about_quiz_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает сообщение для редактирования информации о викторине.
@@ -335,7 +325,6 @@ async def edit_about_quiz_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.edit_faq)
 async def edit_faq_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает сообщение для редактирования информации о часто задаваемых вопросах (FAQ).
@@ -374,7 +363,6 @@ async def edit_faq_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.edit_news)
 async def edit_news_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает сообщение для редактирования новости.
@@ -417,7 +405,6 @@ async def edit_news_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.edit_quiz)
 async def edit_quiz_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает текст, отправленный администратором, и обновляет
@@ -459,7 +446,6 @@ async def edit_quiz_state(message: Message, state: FSMContext) -> None:
     await state.clear()
 
 
-@router.message(Admin.edit_rules)
 async def edit_rules_state(message: Message, state: FSMContext) -> None:
     """
     Обрабатывает текст, отправленный администратором, и обновляет

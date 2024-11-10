@@ -172,49 +172,6 @@ async def rules_callback(callback: CallbackQuery) -> None:
     await callback.message.edit_text(rules, reply_markup=get_back_kb())
 
 
-@router.callback_query(F.data == "change_email")
-async def change_email_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    """
-    Обрабатывает callback-запрос для смены почты.
-    Она очищает текущее состояние, изменяет состояние машины состояний на
-    User.change_email и отправляет сообщение с инструкцией для смены почты.
-
-    :param callback: Объект CallbackQuery, представляющий callback-запрос.
-    :param state: Объект FSMContext, представляющий состояние машины состояний.
-    :return: None
-
-    Внутренний процесс:
-    1. Очищаем текущее состояние.
-    2. Изменяем состояние машины состояний на User.change_email.
-    3. Отправляем сообщение с инструкцией для смены почты.
-    """
-    await state.clear()
-    await callback.message.edit_text(
-        "Напишите вашу новую почту", reply_markup=get_back_kb()
-    )
-
-    await state.set_state(User.change_email)
-
-
-@router.callback_query(F.data == "get_id")
-async def get_id_callback(callback: CallbackQuery) -> None:
-    """
-    Обрабатывает callback-запрос для получения ID.
-    Она отправляет сообщение с ID пользователя.
-
-    :param callback: Объект CallbackQuery, представляющий callback-запрос.
-    :return: None
-
-    Внутренний процесс:
-    1. Получаем ID пользователя.
-    2. Формируем текст сообщения с ID.
-    3. Отправляем сообщение с ID.
-    """
-    await callback.message.edit_text(
-        f"Ваш ID: {callback.from_user.id}", reply_markup=get_back_kb()
-    )
-
-
 @router.callback_query(F.data == "ask_question")
 async def ask_question_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """

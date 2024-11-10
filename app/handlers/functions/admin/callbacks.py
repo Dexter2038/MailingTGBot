@@ -1,9 +1,8 @@
 from typing import List, Tuple
-from aiogram import Bot, Router, F
+from aiogram import Bot, Router
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from app.filters.admin import IsAdminCallback
 
 from app.utils.info import (
     get_about_quiz,
@@ -63,7 +62,6 @@ from app.keyboards.admin import (
 router = Router(name="admin_callbacks")
 
 
-@router.callback_query(F.data == "show_moders")
 async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для показа списка модераторов.
@@ -97,7 +95,6 @@ async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> No
     )
 
 
-@router.callback_query(F.data.startswith("moder_"))
 async def show_moder_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для показа информации о модераторе.
@@ -132,7 +129,6 @@ async def show_moder_callback(callback: CallbackQuery, state: FSMContext) -> Non
     )
 
 
-@router.callback_query(F.data.startswith("del_moder_"))
 async def del_moder_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для удаления модератора.
@@ -170,7 +166,6 @@ async def del_moder_callback(callback: CallbackQuery, state: FSMContext) -> None
         )
 
 
-@router.callback_query(F.data == "add_moderator")
 async def add_moderator_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для добавления модератора.
@@ -194,7 +189,6 @@ async def add_moderator_callback(callback: CallbackQuery, state: FSMContext) -> 
     )
 
 
-@router.callback_query(F.data == "show_subadmins")
 async def show_subadmins_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для показа списка субадминистраторов.
@@ -228,7 +222,6 @@ async def show_subadmins_callback(callback: CallbackQuery, state: FSMContext) ->
     )
 
 
-@router.callback_query(F.data.startswith("subadmin_"))
 async def show_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для показа информации о субадминистраторе.
@@ -263,7 +256,6 @@ async def show_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> 
     )
 
 
-@router.callback_query(F.data.startswith("del_subadmin_"))
 async def del_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для удаления субадминистратора.
@@ -301,7 +293,6 @@ async def del_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> N
         )
 
 
-@router.callback_query(F.data == "add_subadmin")
 async def add_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для добавления модератора.
@@ -325,7 +316,6 @@ async def add_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> N
     )
 
 
-@router.callback_query(F.data == "make_mailing")
 async def make_mailing_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для отправки рассылки.
@@ -349,7 +339,6 @@ async def make_mailing_callback(callback: CallbackQuery, state: FSMContext) -> N
     )
 
 
-@router.callback_query(F.data == "ask_del_chat")
 async def ask_del_chat_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для сброса чата вопросов.
@@ -371,7 +360,6 @@ async def ask_del_chat_callback(callback: CallbackQuery, state: FSMContext) -> N
     )
 
 
-@router.callback_query(F.data == "del_chat")
 async def del_chat_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для сброса чата вопросов.
@@ -399,7 +387,6 @@ async def del_chat_callback(callback: CallbackQuery, state: FSMContext) -> None:
         )
 
 
-@router.callback_query(F.data == "show_confirms")
 async def show_confirms_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для просмотра рассылок с подтверждением.
@@ -436,7 +423,6 @@ async def show_confirms_callback(callback: CallbackQuery, state: FSMContext) -> 
     )
 
 
-@router.callback_query(F.data.startswith("show_confirm_"))
 async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для отображения информации о рассылке с подтверждением.
@@ -474,7 +460,6 @@ async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
     )
 
 
-@router.callback_query(F.data == "add_confirm")
 async def add_confirm_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для добавления рассылки с подтверждением.
@@ -496,7 +481,6 @@ async def add_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
     )
 
 
-@router.callback_query(F.data.startswith("end_confirm_"))
 async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для удаления рассылки с подтверждением.
@@ -537,7 +521,6 @@ async def del_confirm_callback(callback: CallbackQuery, state: FSMContext) -> No
         )
 
 
-@router.callback_query(F.data == "show_chat")
 async def show_chat_callback(
     callback: CallbackQuery, bot: Bot, state: FSMContext
 ) -> None:
@@ -574,7 +557,6 @@ async def show_chat_callback(
     )
 
 
-@router.callback_query(F.data == "edit_about_quiz")
 async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для редактирования информации о викторине.
@@ -610,7 +592,6 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
     )
 
 
-@router.callback_query(F.data == "edit_faq")
 async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для редактирования часто задаваемых вопросов (FAQ).
@@ -644,7 +625,6 @@ async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
     )
 
 
-@router.callback_query(F.data == "edit_rules")
 async def edit_rules_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для редактирования правил.
@@ -677,7 +657,6 @@ async def edit_rules_callback(callback: CallbackQuery, state: FSMContext) -> Non
     )
 
 
-@router.callback_query(F.data == "show_quizzes")
 async def show_quizzes_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для показа всех викторин администратору.
@@ -713,7 +692,6 @@ async def show_quizzes_callback(callback: CallbackQuery, state: FSMContext) -> N
     )
 
 
-@router.callback_query(F.data.startswith("show_quiz_"))
 async def show_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для показа информации о викторине администратору.
@@ -749,7 +727,6 @@ async def show_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
     )
 
 
-@router.callback_query(F.data.startswith("edit_quiz_"))
 async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для редактирования викторины администратором.
@@ -777,7 +754,6 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
     await state.update_data(id=id)
 
 
-@router.callback_query(F.data.startswith("del_quiz_"))
 async def del_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для удаления викторины.
@@ -810,7 +786,6 @@ async def del_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
         )
 
 
-@router.callback_query(F.data == "add_quiz")
 async def add_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Эта функция обрабатывает callback-запрос для добавления викторины.
@@ -833,7 +808,6 @@ async def add_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None:
     )
 
 
-@router.callback_query(F.data == "show_all_news")
 async def show_all_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для просмотра всех новостей.
@@ -871,7 +845,6 @@ async def show_all_news_callback(callback: CallbackQuery, state: FSMContext) -> 
     )
 
 
-@router.callback_query(F.data.startswith("show_one_news_"))
 async def show_one_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для показа отдельной новости.
@@ -909,7 +882,6 @@ async def show_one_news_callback(callback: CallbackQuery, state: FSMContext) -> 
     )
 
 
-@router.callback_query(F.data == "add_news")
 async def add_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для добавления новости.
@@ -931,7 +903,6 @@ async def add_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
     )
 
 
-@router.callback_query(F.data.startswith("edit_news_"))
 async def edit_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для редактирования новости.
@@ -956,7 +927,6 @@ async def edit_news_callback(callback: CallbackQuery, state: FSMContext) -> None
     await state.update_data(id=id)
 
 
-@router.callback_query(F.data.startswith("del_news_"))
 async def del_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает callback-запрос для удаления новости.
@@ -991,8 +961,9 @@ async def del_news_callback(callback: CallbackQuery, state: FSMContext) -> None:
         )
 
 
-@router.callback_query(F.data == "start")
-async def start_callback(callback: CallbackQuery, state: FSMContext) -> None:
+async def start_callback(
+    callback: CallbackQuery, state: FSMContext, is_subadmin: bool
+) -> None:
     """
     Обрабатывает callback-запрос для начала работы.
     Она очищает текущее состояние машины состояний,
@@ -1010,5 +981,5 @@ async def start_callback(callback: CallbackQuery, state: FSMContext) -> None:
     await state.clear()
     await callback.message.edit_text(
         "Здравствуйте!\nВыберите действие",
-        reply_markup=get_admin_kb(is_subadmin=False),
+        reply_markup=get_admin_kb(is_subadmin),
     )

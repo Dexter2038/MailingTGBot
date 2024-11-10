@@ -1,6 +1,6 @@
 from typing import List, Tuple
-from aiogram import Bot, Router
-from aiogram.filters import Command, CommandObject
+from aiogram import Bot
+from aiogram.filters import CommandObject
 from aiogram.types import Message
 
 
@@ -36,11 +36,8 @@ from app.utils.info import (
 
 from app.database.actions import end_confirm, get_all_confirms, get_confirm
 
-router = Router(name="admin_messages")
 
-
-@router.message(Command("start"))
-async def start_command(message: Message) -> None:
+async def start_command(message: Message, is_subadmin: bool) -> None:
     """
     Эта функция обрабатывает команду /start,
     отправляя приветственное сообщение администратору
@@ -53,13 +50,16 @@ async def start_command(message: Message) -> None:
     1. Отправляем приветственное сообщение администратору.
     2. Предлагаем администратору просмотреть список доступных команд.
     """
+    if is_subadmin:
+        role = "субадминистратор"
+    else:
+        role = "администратор"
     await message.answer(
-        "Привет, администратор! Команды доступны по команде /commands",
-        reply_markup=get_admin_kb(is_subadmin=False),
+        f"Привет, {role}! Команды доступны по команде /commands",
+        reply_markup=get_admin_kb(is_subadmin),
     )
 
 
-@router.message(Command("commands"))
 async def commands_command(message: Message) -> None:
     """
     Эта функция обрабатывает команду /commands, отправляя пользователю
@@ -108,7 +108,6 @@ async def commands_command(message: Message) -> None:
     await message.answer(text)
 
 
-@router.message(Command("moders"))
 async def show_moderators_command(message: Message) -> None:
     """
     Команда для администратора, которая показывает список модераторов.
@@ -132,7 +131,6 @@ async def show_moderators_command(message: Message) -> None:
     await message.answer(text)
 
 
-@router.message(Command("addmoder"))
 async def add_moderator_command(message: Message, command: CommandObject) -> None:
     """
     Команда для администратора, которая назначает модератором пользователя.
@@ -179,7 +177,6 @@ async def add_moderator_command(message: Message, command: CommandObject) -> Non
         await message.answer("Пользователь не назначен модератором. Произошла ошибка")
 
 
-@router.message(Command("delmoder"))
 async def del_moderator_command(message: Message, command: CommandObject) -> None:
     """
     Команда для удаления модератора из списка модераторов.
@@ -225,7 +222,6 @@ async def del_moderator_command(message: Message, command: CommandObject) -> Non
         )
 
 
-@router.message(Command("subadmins"))
 async def show_subadmins_command(message: Message) -> None:
     """
     Команда для администратора, которая показывает список субадминистраторов.
@@ -249,8 +245,7 @@ async def show_subadmins_command(message: Message) -> None:
     await message.answer(text)
 
 
-@router.message(Command("addsubadmin"))
-async def add_moderator_command(message: Message, command: CommandObject) -> None:
+async def add_subadmin_command(message: Message, command: CommandObject) -> None:
     """
     Команда для администратора, которая назначает субадминистратором пользователя.
 
@@ -298,7 +293,6 @@ async def add_moderator_command(message: Message, command: CommandObject) -> Non
         )
 
 
-@router.message(Command("delsubadmin"))
 async def del_subadmin_command(message: Message, command: CommandObject) -> None:
     """
     Команда для удаления модератора из списка субадминистраторов.
@@ -344,7 +338,6 @@ async def del_subadmin_command(message: Message, command: CommandObject) -> None
         )
 
 
-@router.message(Command("mailing"))
 async def send_mailing_command(
     message: Message, command: CommandObject, bot: Bot
 ) -> None:
@@ -374,7 +367,6 @@ async def send_mailing_command(
         await message.answer("Рассылка не выполнена. Произошла ошибка")
 
 
-@router.message(Command("delchat"))
 async def del_chat_command(message: Message) -> None:
     """
     Команда для сброса чата вопросов.
@@ -392,7 +384,6 @@ async def del_chat_command(message: Message) -> None:
         await message.answer("Чат не сброшен. Произошла ошибка")
 
 
-@router.message(Command("confirms"))
 async def show_confirms_command(message: Message) -> None:
     """
     Команда для администратора, которая показывает список рассылок с подтверждением.
@@ -416,7 +407,6 @@ async def show_confirms_command(message: Message) -> None:
     await message.answer(text)
 
 
-@router.message(Command("confirm"))
 async def show_confirm_command(message: Message, command: CommandObject) -> None:
     """
     Команда для администратора, которая показывает рассылку с подтверждением.
@@ -463,7 +453,6 @@ async def show_confirm_command(message: Message, command: CommandObject) -> None
     await message.answer(text)
 
 
-@router.message(Command("addconfirm"))
 async def add_confirm_command(
     message: Message, command: CommandObject, bot: Bot
 ) -> None:
@@ -494,7 +483,6 @@ async def add_confirm_command(
         await message.answer("Рассылка с подтверждением не выполнена. Произошла ошибка")
 
 
-@router.message(Command("endconfirm"))
 async def del_confirm_command(message: Message, command: CommandObject) -> None:
     """
     Команда для завершения рассылки с подтверждением.
@@ -529,7 +517,6 @@ async def del_confirm_command(message: Message, command: CommandObject) -> None:
         await message.answer("Рассылка с подтверждением не закончена. Произошла ошибка")
 
 
-@router.message(Command("askchat"))
 async def show_chat_command(message: Message, bot: Bot) -> None:
     """
     Команда для получения ссылки на чат с вопросами.
@@ -552,7 +539,6 @@ async def show_chat_command(message: Message, bot: Bot) -> None:
     await message.answer(f"Ссылка на чат: {chat_link}")
 
 
-@router.message(Command("editaboutquiz"))
 async def edit_about_quiz_command(message: Message, command: CommandObject) -> None:
     """
     Команда для редактирования информации о викторине.
@@ -582,7 +568,6 @@ async def edit_about_quiz_command(message: Message, command: CommandObject) -> N
         await message.answer("Информация о викторине не обновлена. Произошла ошибка")
 
 
-@router.message(Command("aboutquiz"))
 async def show_about_quiz_command(message: Message) -> None:
     """
     Команда для просмотра информации о викторине.
@@ -604,7 +589,6 @@ async def show_about_quiz_command(message: Message) -> None:
     await message.answer(quiz_info)
 
 
-@router.message(Command("editfaq"))
 async def edit_faq_command(message: Message, command: CommandObject) -> None:
     """
     Команда для редактирования информации о частых вопросах.
@@ -634,7 +618,6 @@ async def edit_faq_command(message: Message, command: CommandObject) -> None:
         )
 
 
-@router.message(Command("faq"))
 async def show_faq_command(message: Message) -> None:
     """
     Команда для просмотра информации о частых вопросах.
@@ -656,8 +639,7 @@ async def show_faq_command(message: Message) -> None:
     await message.answer(faq)
 
 
-@router.message(Command("editrules"))
-async def edit_faq_command(message: Message, command: CommandObject) -> None:
+async def edit_rules_command(message: Message, command: CommandObject) -> None:
     """
     Команда для редактирования правил.
 
@@ -684,8 +666,7 @@ async def edit_faq_command(message: Message, command: CommandObject) -> None:
         await message.answer("Правила не обновлены. Произошла ошибка")
 
 
-@router.message(Command("rules"))
-async def show_faq_command(message: Message) -> None:
+async def show_rules_command(message: Message) -> None:
     """
     Команда для просмотра правил.
 
@@ -706,7 +687,6 @@ async def show_faq_command(message: Message) -> None:
     await message.answer(rules)
 
 
-@router.message(Command("news"))
 async def show_news_command(message: Message) -> None:
     """
     Команда для просмотра новостей.
@@ -731,7 +711,6 @@ async def show_news_command(message: Message) -> None:
     await message.answer(text)
 
 
-@router.message(Command("addnews"))
 async def add_news_command(message: Message, command: CommandObject) -> None:
     """
     Команда для добавления новости.
@@ -761,7 +740,6 @@ async def add_news_command(message: Message, command: CommandObject) -> None:
         await message.answer("Новость не добавлена. Произошла ошибка")
 
 
-@router.message(Command("editnews"))
 async def edit_news_command(message: Message, command: CommandObject) -> None:
     """
     Команда для редактирования новости.
@@ -801,7 +779,6 @@ async def edit_news_command(message: Message, command: CommandObject) -> None:
         await message.answer("Новость не обновлена. Произошла ошибка")
 
 
-@router.message(Command("delnews"))
 async def delete_news_command(message: Message, command: CommandObject) -> None:
     """
     Команда для удаления новости.
@@ -839,7 +816,6 @@ async def delete_news_command(message: Message, command: CommandObject) -> None:
         await message.answer("Новость не удалена. Произошла ошибка")
 
 
-@router.message(Command("quizzes"))
 async def show_quizzes_command(message: Message) -> None:
     """
     Команда для просмотра предстоящих викторин.
@@ -865,7 +841,6 @@ async def show_quizzes_command(message: Message) -> None:
     await message.answer(text)
 
 
-@router.message(Command("quiz"))
 async def show_quiz_command(message: Message, command: CommandObject) -> None:
     """
     Команда для просмотра предстоящей викторины.
@@ -903,7 +878,6 @@ async def show_quiz_command(message: Message, command: CommandObject) -> None:
     await message.answer(quiz)
 
 
-@router.message(Command("addquiz"))
 async def add_quiz_command(message: Message, command: CommandObject) -> None:
     """
     Команда для добавления предстоящей викторины.
@@ -931,7 +905,6 @@ async def add_quiz_command(message: Message, command: CommandObject) -> None:
         await message.answer("Предстоящая викторина не добавлена. Произошла ошибка")
 
 
-@router.message(Command("editquiz"))
 async def edit_quiz_command(message: Message, command: CommandObject) -> None:
     """
     Команда для редактирования викторины.
@@ -971,7 +944,6 @@ async def edit_quiz_command(message: Message, command: CommandObject) -> None:
         await message.answer("Предстоящая викторина не обновлена. Произошла ошибка")
 
 
-@router.message(Command("delquiz"))
 async def delete_quiz_command(message: Message, command: CommandObject) -> None:
     """Команда для удаления викторины.
 
@@ -1005,7 +977,6 @@ async def delete_quiz_command(message: Message, command: CommandObject) -> None:
         await message.answer("Предстоящая викторина не удалена. Произошла ошибка")
 
 
-@router.message(Command("addquiz"))
 async def add_quiz_command(message: Message, command: CommandObject) -> None:
     """
     Команда для добавления новой предстоящей викторины.
@@ -1033,7 +1004,6 @@ async def add_quiz_command(message: Message, command: CommandObject) -> None:
         await message.answer("Предстоящая викторина не добавлена. Произошла ошибка")
 
 
-@router.message()
 async def echo_message(message: Message) -> None:
     """
 

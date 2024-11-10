@@ -1,10 +1,9 @@
-from cgitb import text
 from typing import List, Tuple
 from mysql.connector import connect, Error
 from os import environ
 
 
-def create_user(id: int, email: str, username: str) -> bool:
+def create_user(id: int, username: str) -> bool:
     """
     Создает пользователя с id и email
 
@@ -23,94 +22,25 @@ def create_user(id: int, email: str, username: str) -> bool:
         ) as connection:
             query: str = (
                 """
-                INSERT INTO users (id, email, username) VALUES (%s, %s, %s);
+                INSERT INTO users (id, username) VALUES (%s, %s, %s);
                 """
             )
             with connection.cursor() as cursor:
-                cursor.execute(query, (id, email, username))
+                cursor.execute(query, (id, username))
             connection.commit()
             return True
     except Error as e:
-        print(e)
-        print("Не получилось добавить пользователя с id =", id, "email =", email)
+        # Всё в порядке, пользователь уже зарегистрирован
         return False
 
 
-def modify_email(id: int, new_email: str) -> bool:
+def get_all_ids() -> List[int]:
     """
-    Изменяет email пользователя с id
-
-    Args:
-        id (int): id пользователя.
-        new_email (str): новый email.
-
-    Returns:
-        bool: True, если email успешно изменен, False - в противном случае.
-    """
-    try:
-        with connect(
-            host=environ["DB_HOST"],
-            user=environ["DB_USER"],
-            password=environ["DB_PASSWORD"],
-            database=environ["DB_NAME"],
-        ) as connection:
-            query: str = (
-                """
-                UPDATE users SET email = %s WHERE id = %s;
-                """
-            )
-            with connection.cursor() as cursor:
-                cursor.execute(query, (new_email, id))
-            connection.commit()
-            return True
-    except Error as e:
-        print(e)
-        print(
-            "Не получилось изменить email пользователя с id =", id, "email =", new_email
-        )
-        return False
-
-
-def get_email_by_id(id: int) -> str:
-    """
-    Возвращает email пользователя с id
-
-    Args:
-        id: int - id пользователя
-    Returns:
-        str: email пользователя
-    """
-    try:
-        with connect(
-            host=environ["DB_HOST"],
-            user=environ["DB_USER"],
-            password=environ["DB_PASSWORD"],
-            database=environ["DB_NAME"],
-        ) as connection:
-            query: str = (
-                """
-                SELECT email FROM users WHERE id = %s;
-                """
-            )
-            with connection.cursor() as cursor:
-                cursor.execute(query, (id,))
-                return cursor.fetchone()[0]
-    except Error as e:
-        print(e)
-        print("Не получилось получить email пользователя с id =", id)
-        return ""
-
-
-def get_all_emails_and_ids() -> List[Tuple[str, int]]:
-    """
-    Возвращает список email-ов всех пользователей
+    Возвращает список id всех пользователей
     или пустый список в случае ошибки
 
-    Пример:
-    [(email1, id1), (email2, id2), ...]
-
     Returns:
-        List[Tuple[str, int]]: - список email-ов всех пользователей
+        List[int]: - список id всех пользователей
     """
     try:
         with connect(
@@ -121,7 +51,7 @@ def get_all_emails_and_ids() -> List[Tuple[str, int]]:
         ) as connection:
             query: str = (
                 """
-                SELECT email, id FROM users;
+                SELECT id FROM users;
                 """
             )
             with connection.cursor() as cursor:
@@ -129,7 +59,7 @@ def get_all_emails_and_ids() -> List[Tuple[str, int]]:
                 return cursor.fetchall()
     except Error as e:
         print(e)
-        print("Не получилось получить email всех пользователей")
+        print("Не получилось получить список пользователей")
         return []
 
 
@@ -195,7 +125,7 @@ def add_confirm(text: str) -> int:
         return 0
 
 
-def get_all_confirms() -> List[Tuple[int, str]]:
+def get_all_confirms() -> List[int]:
     """
     Возвращает все рассылки
 
@@ -326,5 +256,3 @@ def get_confirm(id: int) -> Tuple[str, List[Tuple[int, str]]]:
         print(e)
         print("Не получилось получить подтвержденных пользователей")
         return []
-
-

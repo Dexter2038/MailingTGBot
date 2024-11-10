@@ -45,7 +45,6 @@ def setup_models() -> None:
                 """
                 CREATE TABLE IF NOT EXISTS users (
                     id BIGINT PRIMARY KEY,
-                    email VARCHAR(255),
                     username VARCHAR(255)
                 );
                 """
