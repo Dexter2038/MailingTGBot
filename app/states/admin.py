@@ -13,3 +13,4 @@ class Admin(StatesGroup):
     edit_rules = State()
     add_news = State()
     add_quiz = State()
+    ask_question = State()

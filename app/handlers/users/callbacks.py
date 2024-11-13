@@ -32,7 +32,7 @@ async def start_callback(callback: CallbackQuery) -> None:
     2. Отправляем сообщение с клавиатурой.
     """
     await callback.message.edit_text(
-        "Здравствуйте!\nВыберите действие", reply_markup=get_user_kb()
+        f"Добро пожаловать, @{callback.from_user.username}!", reply_markup=get_user_kb()
     )
 
 
@@ -114,7 +114,7 @@ async def quizzes_callback(callback: CallbackQuery) -> None:
         )
         return
 
-    text += "\n".join(quizzes)
+    text = "\n".join(quizzes)
 
     await callback.message.edit_text(text, reply_markup=get_back_kb())
 

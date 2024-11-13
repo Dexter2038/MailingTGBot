@@ -12,3 +12,4 @@ moders.txt
 subadmins.txt
 instruct.md
 database.json
+*.session

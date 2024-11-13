@@ -9,19 +9,21 @@ from app.utils.info import (
     get_faq,
     get_news_admin,
     get_news_one,
+    get_news_user,
     get_quizzes_admin,
     del_quiz,
     get_quiz,
     del_news,
+    get_quizzes_user,
     get_rules,
 )
 from app.utils.ranks import (
     del_moder,
     del_subadmin,
-    get_moder,
-    get_moders,
-    get_subadmin,
-    get_subadmins,
+    get_full_moders,
+    get_full_subadmins,
+    get_moder_username,
+    get_subadmin_username,
     reset_chat,
     get_chat_link,
 )
@@ -57,9 +59,187 @@ from app.keyboards.admin import (
     get_del_subadmin_kb,
     get_subadmin_kb,
     get_subadmins_kb,
+    get_user_kb,
+    get_back_user_kb,  # TODO
 )
 
 router = Router(name="admin_callbacks")
+
+
+async def user_mode_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос на старт.
+    Эта функция изменяет текст сообщения на инструкцию
+    и отправляет сообщение с клавиатурой для выбора действия.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Изменяем текст сообщения на инструкцию.
+    2. Отправляем сообщение с клавиатурой.
+    """
+    await callback.message.edit_text(
+        f"Добро пожаловать, @{callback.from_user.username}!", reply_markup=get_user_kb()
+    )
+
+
+async def about_quiz_user_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра информации о викторине.
+    Она очищает текущее состояние, получает информацию о викторине из базы данных
+    и отправляет сообщение с ее данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем информацию о викторине из базы данных с помощью функции get_about_quiz().
+    2. Если информация не найдена, отправляем сообщение о том, что информация не найдена.
+    3. Если информация найдена, формируем текст сообщения с ее данными.
+    4. Отправляем сообщение с данными викторины и клавиатурой с возможными действиями.
+    """
+    about_quiz = await get_about_quiz()
+
+    if not about_quiz:
+        await callback.message.edit_text(
+            "Информация о викторине не найдена", reply_markup=get_back_user_kb()
+        )
+        return
+
+    await callback.message.edit_text(about_quiz, reply_markup=get_back_user_kb())
+
+
+async def faq_user_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра информации о частых вопросах.
+    Она очищает текущее состояние, получает информацию о частых вопросах из базы данных
+    и отправляет сообщение с ее данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем информацию о частых вопросах из базы данных с помощью функции get_faq().
+    2. Если информация не найдена, отправляем сообщение о том, что информация не найдена.
+    3. Если информация найдена, формируем текст сообщения с ее данными.
+    4. Отправляем сообщение с данными частых вопросов и клавиатурой с возможными действиями.
+    """
+    faq = await get_faq()
+
+    if not faq:
+        await callback.message.edit_text(
+            "Информация о частых вопросах не найдена", reply_markup=get_back_user_kb()
+        )
+        return
+
+    await callback.message.edit_text(faq, reply_markup=get_back_user_kb())
+
+
+async def quizzes_user_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра предстоящих викторин.
+    Она очищает текущее состояние, получает список предстоящих викторин из базы данных
+    и отправляет сообщение с ее данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем список предстоящих викторин из базы данных с помощью функции get_quizzes_user().
+    2. Если список викторин пуст, отправляем сообщение о том, что викторин нет.
+    3. Если викторины найдены, формируем текст сообщения с их ID и текстом.
+    4. Отправляем сообщение с данными викторин.
+    """
+    quizzes = await get_quizzes_user()
+
+    if not quizzes:
+        await callback.message.edit_text(
+            "Нет предстоящих викторин", reply_markup=get_back_user_kb()
+        )
+        return
+
+    text = "\n".join(quizzes)
+
+    await callback.message.edit_text(text, reply_markup=get_back_user_kb())
+
+
+async def news_user_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра новостей.
+    Она очищает текущее состояние, получает список новостей из базы данных
+    и отправляет сообщение с ее данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем список новостей из базы данных с помощью функции get_news_user().
+    2. Если список новостей пуст, отправляем сообщение о том, что новостей нет.
+    3. Если новости найдены, формируем текст сообщения с ними.
+    4. Отправляем сообщение с данными новостей.
+    """
+    news = await get_news_user()
+
+    if not news:
+        await callback.message.edit_text(
+            "Нет новостей", reply_markup=get_back_user_kb()
+        )
+        return
+
+    text = "\n".join(news)
+
+    await callback.message.edit_text(text, reply_markup=get_back_user_kb())
+
+
+async def rules_user_callback(callback: CallbackQuery) -> None:
+    """
+    Обрабатывает callback-запрос для просмотра правил.
+    Она очищает текущее состояние, получает текст правил из базы данных
+    и отправляет сообщение с его данными.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :return: None
+
+    Внутренний процесс:
+    1. Получаем текст правил из базы данных с помощью функции get_rules().
+    2. Если текст правил не найден, отправляем сообщение о том, что правил не найдены.
+    3. Если правила найдены, отправляем сообщение с данными правил.
+    """
+    rules = await get_rules()
+
+    if not rules:
+        await callback.message.edit_text(
+            "Правила не выставлены", reply_markup=get_back_user_kb()
+        )
+        return
+
+    await callback.message.edit_text(rules, reply_markup=get_back_user_kb())
+
+
+async def ask_question_user_callback(
+    callback: CallbackQuery, state: FSMContext
+) -> None:
+    """
+    Обрабатывает callback-запрос для отправки вопроса.
+    Она очищает текущее состояние, изменяет состояние машины состояний на
+    Admin.ask_question и отправляет сообщение с инструкцией для отправки вопроса.
+
+    :param callback: Объект CallbackQuery, представляющий callback-запрос.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :return: None
+
+    Внутренний процесс:
+    1. Очищаем текущее состояние.
+    2. Изменяем состояние машины состояний на Admin.ask_question.
+    3. Отправляем сообщение с инструкцией для отправки вопроса.
+    """
+    await state.clear()
+    await callback.message.edit_text(
+        "Напишите ваш вопрос", reply_markup=get_back_user_kb()
+    )
+
+    await state.set_state(Admin.ask_question)
 
 
 async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> None:
@@ -74,13 +254,13 @@ async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> No
 
     Внутренний процесс:
     1. Очищаем текущее состояние машины состояний.
-    2. Получаем список модераторов с помощью функции get_moders().
+    2. Получаем список модераторов с помощью функции get_full_moders().
     3. Если список модераторов пуст, отправляем сообщение о том, что модераторов нет.
     4. Если модераторы найдены, формируем текст сообщения с их ID и именами.
     5. Отправляем сообщение с данными модераторов и клавиатурой с возможными действиями.
     """
     await state.clear()
-    moders = await get_moders()
+    moders = await get_full_moders()
 
     if not moders:
         await callback.message.edit_text(
@@ -89,7 +269,7 @@ async def show_moders_callback(callback: CallbackQuery, state: FSMContext) -> No
         return
 
     text = "Модераторы:\n\n"
-    text += "\n".join([f"ID: {moder[0]} - @{moder[1]}" for moder in moders])
+    text += "\n".join([f"@{moder[1]}" for moder in moders])
     await callback.message.edit_text(
         text, reply_markup=get_moders_kb([moder[0] for moder in moders])
     )
@@ -115,14 +295,13 @@ async def show_moder_callback(callback: CallbackQuery, state: FSMContext) -> Non
     await state.clear()
     _, id = callback.data.split("_")
 
-    moder = await get_moder(id)
-    if not moder:
+    username = await get_moder_username(id)
+    if not username:
         await callback.message.edit_text(
             "Модератор не найден", reply_markup=get_moder_kb(id)
         )
         return
 
-    id, username = moder
     await callback.message.answer(
         f"Модератор:\n\nID: {id}\n@{username}\n\nВыберите действие:",
         reply_markup=get_moder_kb(id),
@@ -184,7 +363,7 @@ async def add_moderator_callback(callback: CallbackQuery, state: FSMContext) -> 
     """
     await state.set_state(Admin.add_moderator)
     await callback.message.edit_text(
-        "Отправьте ID и имя пользователя в формате <id> <username> \n\nПример: 1234567890 @username или 1234567890 username",
+        "Отправьте никнейм пользователя, которого хотите добавить в модераторы\n\nПример: @username или username",
         reply_markup=get_add_moder_kb(),
     )
 
@@ -207,7 +386,7 @@ async def show_subadmins_callback(callback: CallbackQuery, state: FSMContext) ->
     5. Отправляем сообщение с данными субадминистраторов и клавиатурой с возможными действиями.
     """
     await state.clear()
-    subadmins = await get_subadmins()
+    subadmins = await get_full_subadmins()
 
     if not subadmins:
         await callback.message.edit_text(
@@ -216,7 +395,7 @@ async def show_subadmins_callback(callback: CallbackQuery, state: FSMContext) ->
         return
 
     text = "Субадминистраторы:\n\n"
-    text += "\n".join([f"ID: {moder[0]} - @{moder[1]}" for moder in subadmins])
+    text += "\n".join([f"@{moder[1]}" for moder in subadmins])
     await callback.message.edit_text(
         text, reply_markup=get_subadmins_kb([moder[0] for moder in subadmins])
     )
@@ -242,14 +421,13 @@ async def show_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> 
     await state.clear()
     _, id = callback.data.split("_")
 
-    subadmin = await get_subadmin(id)
-    if not subadmin:
+    username = await get_subadmin_username(id)
+    if not username:
         await callback.message.edit_text(
             "Субадминистратор не найден", reply_markup=get_subadmin_kb(id)
         )
         return
 
-    id, username = subadmin
     await callback.message.answer(
         f"Субадминистратор:\n\nID: {id}\n@{username}\n\nВыберите действие:",
         reply_markup=get_subadmin_kb(id),
@@ -311,7 +489,7 @@ async def add_subadmin_callback(callback: CallbackQuery, state: FSMContext) -> N
     """
     await state.set_state(Admin.add_subadmin)
     await callback.message.edit_text(
-        "Отправьте ID и имя пользователя в формате <id> <username> \n\nПример: 1234567890 @username или 1234567890 username",
+        "Отправьте никнейм пользователя, которого хотите добавить в субадминистраторы\n\nПример: @username или username",
         reply_markup=get_add_subadmin_kb(),
     )
 
@@ -586,7 +764,7 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
         return
 
     await callback.message.edit_text(
-        f"О викторине:\n{about_quiz}\n\n"
+        f"Текст о викторине:\n{about_quiz}\n\n"
         "Отправьте текст для выставления в О викторине",
         reply_markup=get_back_kb(),
     )
@@ -619,7 +797,7 @@ async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
         return
 
     await callback.message.edit_text(
-        f"Частые вопросы:\n{faq}\n\n"
+        f"Текст частых вопросов:\n{faq}\n\n"
         "Отправьте текст для выставления в Частые вопросы",
         reply_markup=get_back_kb(),
     )
@@ -652,7 +830,7 @@ async def edit_rules_callback(callback: CallbackQuery, state: FSMContext) -> Non
         return
 
     await callback.message.edit_text(
-        f"Правила:\n{rules}\n\n" "Отправьте текст для выставления в правилах",
+        f"Текст правил:\n{rules}\n\n" "Отправьте текст для выставления в правилах",
         reply_markup=get_back_kb(),
     )
 
@@ -979,7 +1157,11 @@ async def start_callback(
     2. Отправляем сообщение с приветствием.
     """
     await state.clear()
+    if is_subadmin:
+        role = "субадминистратор"
+    else:
+        role = "администратор"
     await callback.message.edit_text(
-        "Здравствуйте!\nВыберите действие",
+        f"Здравствуйте, {role}!\nВыберите действие",
         reply_markup=get_admin_kb(is_subadmin),
     )

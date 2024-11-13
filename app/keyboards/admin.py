@@ -3,6 +3,34 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
+def get_user_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+
+    kb.add(
+        InlineKeyboardButton(text="Новости", callback_data="news_user"),
+        InlineKeyboardButton(text="Правила", callback_data="rules_user"),
+        InlineKeyboardButton(text="О викторине", callback_data="about_quiz_user"),
+        InlineKeyboardButton(text="Частые вопросы", callback_data="faq_user"),
+        InlineKeyboardButton(
+            text="Предстоящие викторины", callback_data="quizzes_user"
+        ),
+        InlineKeyboardButton(text="Задать вопрос", callback_data="ask_question_user"),
+        InlineKeyboardButton(text="Режим администратора", callback_data="start"),
+    )
+
+    kb.adjust(1)
+
+    return kb.as_markup()
+
+
+def get_back_user_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+
+    kb.add(InlineKeyboardButton(text="Назад", callback_data="user_mode"))
+
+    return kb.as_markup()
+
+
 def get_admin_kb(is_subadmin: bool = True) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.add(
@@ -22,6 +50,7 @@ def get_admin_kb(is_subadmin: bool = True) -> InlineKeyboardMarkup:
             text="Сбросить чат вопросов", callback_data="ask_del_chat"
         ),
         InlineKeyboardButton(text="Модераторы", callback_data="show_moders"),
+        InlineKeyboardButton(text="Режим пользователя", callback_data="user_mode"),
     )
     if not is_subadmin:
         builder.add(

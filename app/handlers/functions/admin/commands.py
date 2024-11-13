@@ -8,8 +8,8 @@ from app.keyboards.admin import get_admin_kb
 from app.utils.ranks import (
     add_subadmin,
     del_subadmin,
-    get_moders,
-    get_subadmins,
+    get_full_moders,
+    get_full_subadmins,
     reset_chat,
     get_chat_link,
     add_moder,
@@ -60,7 +60,7 @@ async def start_command(message: Message, is_subadmin: bool) -> None:
     )
 
 
-async def commands_command(message: Message) -> None:
+async def commands_command(message: Message, is_subadmin: bool) -> None:
     """
     Эта функция обрабатывает команду /commands, отправляя пользователю
     список всех доступных команд и их описание.
@@ -75,12 +75,9 @@ async def commands_command(message: Message) -> None:
     text = (
         "Доступные команды:\n\n"
         "/start - начать работу с ботом\n"
-        "/addmoder <id> <username> - назначить пользователя модератором\n"
+        "/addmoder <username> - назначить пользователя модератором\n"
         "/delmoder <id/username> - убрать пользователя из списка модераторов\n"
         "/moders - посмотреть список модераторов\n"
-        "/addsubadmin <id> <username> - назначить пользователя субадминистратором\n"
-        "/delsubadmin <id/username> - убрать пользователя из списка субадминистраторов\n"
-        "/subadmins - посмотреть список субадминистраторов\n"
         "/mailing <текст> - сделать рассылку всем пользователям\n"
         "/confirms - посмотреть список рассылки с подтверждением\n"
         "/confirm <id> - посмотреть участников конкретной рассылки с подтверждением\n"
@@ -104,6 +101,12 @@ async def commands_command(message: Message) -> None:
         "/delquiz <id> - удалить информацию о предстоящей викторине\n"
         "/commands - посмотреть доступные команды\n"
     )
+    if not is_subadmin:
+        text += (
+            "/addsubadmin <username> - назначить пользователя субадминистратором\n"
+            "/delsubadmin <id/username> - убрать пользователя из списка субадминистраторов\n"
+            "/subadmins - посмотреть список субадминистраторов\n"
+        )
 
     await message.answer(text)
 
@@ -116,12 +119,12 @@ async def show_moderators_command(message: Message) -> None:
     :return: None
 
     Внутренний процесс:
-    1. Получаем список модераторов с помощью функции get_moders().
+    1. Получаем список модераторов с помощью функции get_full_moders().
     2. Если список модераторов пуст, отправляем сообщение о том, что модераторов нет.
     3. Если модераторы найдены, формируем текст сообщения с их ID, именами.
     4. Отправляем сообщение с данными модераторов.
     """
-    moders = await get_moders()
+    moders = await get_full_moders()
     if not moders:
         await message.answer("Нет модераторов")
         return
@@ -141,37 +144,39 @@ async def add_moderator_command(message: Message, command: CommandObject) -> Non
 
     Внутренний процесс:
     1. Получаем аргументы команды.
-    2. Если аргументов меньше 2, выводим ошибку.
-    3. Если ID пользователя не является числом, выводим ошибку.
-    4. Если пользователь уже является модератором, выводим ошибку.
-    5. Если ID пользователя правильный, то добавляем его в список модераторов.
+    2. Если аргументов меньше 1, выводим ошибку.
+    3. Если пользователь уже является модератором, выводим ошибку.
+    4. Если ID или никнейм пользователя правильный, то добавляем его в список модераторов.
     """
     args = command.args
     try:
         args = args.split(" ")
     except AttributeError:
         await message.answer(
-            "Неверный формат команды. Используйте /addmoder <id> <username>. Пример: 123 @username или 123 username"
+            "Неверный формат команды. Используйте /addmoder <username>. Пример: @username или username"
         )
         return
 
-    if len(args) != 2 or not args[0].isdigit():
+    if len(args) != 1:
         await message.answer(
-            "Неверный формат команды. Используйте /addmoder <id> <username>. Пример: 123 @username или 123 username"
+            "Неверный формат команды. Используйте /addmoder <username>. Пример: @username или username"
         )
         return
 
-    id, username = args
+    username = args[0]
 
     username = username.replace("@", "")
 
     try:
-        result = await add_moder(id, username)
+        result = await add_moder(username)
 
         if result:
             await message.answer("Пользователь назначен модератором")
         else:
-            await message.answer("Пользователь уже модератор")
+            if result == -2:
+                await message.answer("Пользователь с таким никнеймом не найден")
+            elif result == -1:
+                await message.answer("Пользователь уже является модератором")
 
     except Exception:
         await message.answer("Пользователь не назначен модератором. Произошла ошибка")
@@ -214,7 +219,10 @@ async def del_moderator_command(message: Message, command: CommandObject) -> Non
         if result:
             await message.answer("Пользователь удален из списка модераторов")
         else:
-            await message.answer("Пользователь не модератор")
+            if result == -2:
+                await message.answer("Пользователь с таким никнеймом не найден")
+            elif result == -1:
+                await message.answer("Пользователь не является модератором")
 
     except Exception as e:
         await message.answer(
@@ -235,7 +243,7 @@ async def show_subadmins_command(message: Message) -> None:
     3. Если модераторы найдены, формируем текст сообщения с их ID, именами.
     4. Отправляем сообщение с данными субадминистраторов.
     """
-    subadmins = await get_subadmins()
+    subadmins = await get_full_subadmins()
     if not subadmins:
         await message.answer("Нет субадминистраторов")
         return
@@ -255,37 +263,39 @@ async def add_subadmin_command(message: Message, command: CommandObject) -> None
 
     Внутренний процесс:
     1. Получаем аргументы команды.
-    2. Если аргументов меньше 2, выводим ошибку.
-    3. Если ID пользователя не является числом, выводим ошибку.
-    4. Если пользователь уже является субадминистратором, выводим ошибку.
-    5. Если ID пользователя правильный, то добавляем его в список модераторов.
+    2. Если аргументов меньше 1, выводим ошибку.
+    3. Если пользователь уже является субадминистратором, выводим ошибку.
+    4. Если ID или никнейм пользователя правильный, то добавляем его в список модераторов.
     """
     args = command.args
     try:
         args = args.split(" ")
     except AttributeError:
         await message.answer(
-            "Неверный формат команды. Используйте /addsubadmin <id> <username>. Пример: 123 @username или 123 username"
+            "Неверный формат команды. Используйте /addsubadmin <username>. Пример: @username или username"
         )
         return
 
-    if len(args) != 2 or not args[0].isdigit():
+    if len(args) != 1:
         await message.answer(
-            "Неверный формат команды. Используйте /addsubadmin <id> <username>. Пример: 123 @username или 123 username"
+            "Неверный формат команды. Используйте /addsubadmin <username>. Пример: @username или username"
         )
         return
 
-    id, username = args
+    username = args[0]
 
     username = username.replace("@", "")
 
     try:
-        result = await add_subadmin(id, username)
+        result = await add_subadmin(username)
 
         if result:
             await message.answer("Пользователь назначен субадминистратором")
         else:
-            await message.answer("Пользователь уже субадминистратор")
+            if result == -2:
+                await message.answer("Пользователь с таким никнеймом не найден")
+            elif result == -1:
+                await message.answer("Пользователь уже является субадминистратором")
 
     except Exception:
         await message.answer(
@@ -330,7 +340,10 @@ async def del_subadmin_command(message: Message, command: CommandObject) -> None
         if result:
             await message.answer("Пользователь удален из списка субадминистраторов")
         else:
-            await message.answer("Пользователь не субадминистратор")
+            if result == -2:
+                await message.answer("Пользователь с таким никнеймом не найден")
+            elif result == -1:
+                await message.answer("Пользователь не является субадминистратором")
 
     except Exception as e:
         await message.answer(

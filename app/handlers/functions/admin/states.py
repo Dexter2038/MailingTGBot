@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from app.database.actions import add_confirm, end_confirm
 
 from app.states.admin import Admin
+from app.utils.ask import ask_question
 from app.utils.info import (
     add_news,
     add_quiz,
@@ -16,7 +17,40 @@ from app.utils.info import (
 )
 from app.utils.mailing import make_mailing
 from app.utils.ranks import add_moder, add_subadmin, del_moder
-from app.keyboards.admin import get_back_kb
+from app.keyboards.admin import get_back_kb, get_back_user_kb
+
+
+async def ask_question_state(message: Message, state: FSMContext, bot: Bot) -> None:
+    """
+    Обрабатывает сообщение пользователя с вопросом и отправляет его в чат поддержки.
+
+    :param message: Объект Message, представляющий отправленное сообщение.
+    :param state: Объект FSMContext, представляющий состояние машины состояний.
+    :param bot: Объект Bot, представляющий бота, который отправляет сообщение.
+    :return: None
+
+    Внутренний процесс:
+    1. Вызываем функцию ask_question(), передавая необходимые параметры, для отправки вопроса в чат поддержки.
+    2. Анализируем результат выполнения функции ask_question().
+    3. Если вопрос успешно отправлен, уведомляем пользователя об успешной отправке.
+    4. Если отправка не удалась, уведомляем пользователя о неудаче и предлагаем попробовать позже.
+    5. Очищаем текущее состояние машины состояний.
+    """
+    result = await ask_question(
+        message.from_user.id,
+        message.message_id,
+        message.from_user.username,
+        bot,
+        message.text,
+    )
+
+    if result:
+        await message.answer("Ваш вопрос отправлен", reply_markup=get_back_user_kb())
+    else:
+        await message.answer(
+            "Ваш вопрос не отправлен. Попробуйте позже", reply_markup=get_back_user_kb()
+        )
+    await state.clear()
 
 
 async def add_moder_state(message: Message, state: FSMContext) -> None:
@@ -43,28 +77,35 @@ async def add_moder_state(message: Message, state: FSMContext) -> None:
     """
     args = message.text.split(" ")
 
-    if len(args) != 2 or not args[0].isdigit():
+    if len(args) != 1:
         await message.answer(
-            "Неверный формат. Введите <id> <username> с пробелом между ними. Пример: 123 @username или 123 username",
+            "Неверный формат. Введите <username> пользователя, которого хотите назначить модератором. Пример: @username или username",
             reply_markup=get_back_kb(),
         )
         return
 
-    id, username = args
+    username = args[0]
 
     username = username.replace("@", "")
 
     try:
-        result = await add_moder(id, username)
+        result = await add_moder(username)
 
         if result:
             await message.answer(
                 "Пользователь назначен модератором", reply_markup=get_back_kb()
             )
         else:
-            await message.answer(
-                "Пользователь уже модератор", reply_markup=get_back_kb()
-            )
+            if result == -1:
+                await message.answer(
+                    "Пользователь уже является модератором",
+                    reply_markup=get_back_kb(),
+                )
+            if result == -2:
+                await message.answer(
+                    "Пользователь с таким никнеймом не наиден",
+                    reply_markup=get_back_kb(),
+                )
 
     except Exception:
         await message.answer(
@@ -98,28 +139,35 @@ async def add_subadmin_state(message: Message, state: FSMContext) -> None:
     """
     args = message.text.split(" ")
 
-    if len(args) != 2 or not args[0].isdigit():
+    if len(args) != 1:
         await message.answer(
-            "Неверный формат. Введите <id> <username> с пробелом между ними. Пример: 123 @username или 123 username",
+            "Неверный формат. Введите <username> пользователя, которого хотите назначить субадминистратором. Пример: @username или username",
             reply_markup=get_back_kb(),
         )
         return
 
-    id, username = args
+    username = args[0]
 
     username = username.replace("@", "")
 
     try:
-        result = await add_subadmin(id, username)
+        result = await add_subadmin(username)
 
         if result:
             await message.answer(
                 "Пользователь назначен субадмином", reply_markup=get_back_kb()
             )
         else:
-            await message.answer(
-                "Пользователь уже субадмин", reply_markup=get_back_kb()
-            )
+            if result == -1:
+                await message.answer(
+                    "Пользователь уже является субадмином",
+                    reply_markup=get_back_kb(),
+                )
+            if result == -2:
+                await message.answer(
+                    "Пользователь с таким никнеймом не наиден",
+                    reply_markup=get_back_kb(),
+                )
 
     except Exception:
         await message.answer(

@@ -9,13 +9,13 @@ router = Router(name="subadmin_messages")
 
 
 @router.message(Command("start"))
-async def start_command_subadmin(message: Message) -> None:
+async def start_command_subadmin(message: Message, bot: Bot) -> None:
     await start_command(message, is_subadmin=True)
 
 
 @router.message(Command("commands"))
 async def commands_command_subadmin(message: Message) -> None:
-    await commands_command(message)
+    await commands_command(message, is_subadmin=True)
 
 
 @router.message(Command("moders"))

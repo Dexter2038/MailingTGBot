@@ -10,6 +10,13 @@ from app.handlers.functions.admin.states import *
 router = Router(name="root_states")
 
 
+@router.message(Admin.ask_question)
+async def ask_question_state_root(
+    message: Message, state: FSMContext, bot: Bot
+) -> None:
+    await ask_question_state(message, state, bot)
+
+
 @router.message(Admin.add_moderator)
 async def add_moder_state_root(message: Message, state: FSMContext) -> None:
     await add_moder_state(message, state)

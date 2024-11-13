@@ -15,7 +15,7 @@ async def start_command_root(message: Message) -> None:
 
 @router.message(Command("commands"))
 async def commands_command_root(message: Message) -> None:
-    await commands_command(message)
+    await commands_command(message, is_subadmin=False)
 
 
 @router.message(Command("moders"))

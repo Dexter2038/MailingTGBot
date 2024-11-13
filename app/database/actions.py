@@ -3,13 +3,13 @@ from mysql.connector import connect, Error
 from os import environ
 
 
-def create_user(id: int, username: str) -> bool:
+def update_user(id: int, username: str) -> bool:
     """
-    Создает пользователя с id и email
+    Создает пользователя с id и никнеймом
 
     Args:
         id: int - id пользователя
-        email: str - email
+        username: str - никнейм пользователя
     Returns:
         bool: True, если пользователь успешно создан, False - в противном случае
     """
@@ -20,17 +20,32 @@ def create_user(id: int, username: str) -> bool:
             password=environ["DB_PASSWORD"],
             database=environ["DB_NAME"],
         ) as connection:
-            query: str = (
-                """
-                INSERT INTO users (id, username) VALUES (%s, %s, %s);
-                """
-            )
             with connection.cursor() as cursor:
-                cursor.execute(query, (id, username))
-            connection.commit()
-            return True
+                # Проверяем, если пользователь уже зарегистрирован
+                check_query = "SELECT username FROM users WHERE id = %s"
+                cursor.execute(check_query, (id,))
+                result = cursor.fetchone()
+
+                if result:
+                    # Пользователь уже зарегистрирован, проверяем никнейм
+                    current_username = result[0]
+                    if current_username != username:
+                        # Обновляем никнейм если он изменился
+                        update_query = "UPDATE users SET username = %s WHERE id = %s"
+                        cursor.execute(update_query, (username, id))
+                        connection.commit()
+                    return True
+                else:
+                    # Пользователь не зарегистрирован, регистрируем
+                    insert_query = "INSERT INTO users (id, username) VALUES (%s, %s)"
+                    cursor.execute(insert_query, (id, username))
+                    connection.commit()
+                    return True
     except Error as e:
-        # Всё в порядке, пользователь уже зарегистрирован
+        print(e)
+        print(
+            "Не получилось создать пользователя с id =", id, "и никнеймом =", username
+        )
         return False
 
 

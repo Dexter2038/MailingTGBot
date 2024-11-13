@@ -6,7 +6,7 @@ from app.utils.ranks import get_admin
 
 class IsAdminMessage(Filter):
     """
-    Фильтр, который проверяет, является ли автор сообщения субадминистратором.
+    Фильтр, который проверяет, является ли автор сообщения администратором.
     """
 
     async def __call__(self, message: Message) -> bool:
@@ -21,7 +21,7 @@ class IsAdminMessage(Filter):
 
 class IsAdminCallback(Filter):
     """
-    Фильтр, который проверяет, является ли автор callback-queries субадминистратором.
+    Фильтр, который проверяет, является ли автор callback-queries администратором.
     """
 
     async def __call__(self, callback: CallbackQuery) -> bool:

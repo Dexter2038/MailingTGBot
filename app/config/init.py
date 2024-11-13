@@ -1,6 +1,7 @@
 from os import environ
 from app.database.models import init_db
 from app.utils.ranks import init_rank_files
+from app.utils.client import init_client
 
 
 def initialize_app() -> None:
@@ -15,6 +16,9 @@ def initialize_app() -> None:
 
         # Инициализация системы рангов
         init_rank_files(environ["ADMIN"])
+
+        # Инициализация MTProto API
+        init_client()
 
     except Exception as e:
         print(e)

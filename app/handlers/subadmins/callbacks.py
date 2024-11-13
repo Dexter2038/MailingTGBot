@@ -10,6 +10,43 @@ from app.handlers.functions.admin.callbacks import *
 router = Router(name="subadmin_callbacks")
 
 
+@router.callback_query(F.data == "user_mode")
+async def user_mode_callback_subadmin(callback: CallbackQuery) -> None:
+    await user_mode_callback(callback)
+
+
+@router.callback_query(F.data == "about_quiz_user")
+async def about_quiz_user_callback_subadmin(callback: CallbackQuery) -> None:
+    await about_quiz_user_callback(callback)
+
+
+@router.callback_query(F.data == "faq_user")
+async def faq_user_callback_subadmin(callback: CallbackQuery) -> None:
+    await faq_user_callback(callback)
+
+
+@router.callback_query(F.data == "quizzes_user")
+async def quizzes_user_callback_subadmin(callback: CallbackQuery) -> None:
+    await quizzes_user_callback(callback)
+
+
+@router.callback_query(F.data == "news_user")
+async def news_user_callback_subadmin(callback: CallbackQuery) -> None:
+    await news_user_callback(callback)
+
+
+@router.callback_query(F.data == "rules_user")
+async def rules_user_callback_subadmin(callback: CallbackQuery) -> None:
+    await rules_user_callback(callback)
+
+
+@router.callback_query(F.data == "ask_question_user")
+async def ask_question_user_callback_subadmin(
+    callback: CallbackQuery, state: FSMContext
+) -> None:
+    await ask_question_user_callback(callback, state)
+
+
 @router.callback_query(F.data == "show_moders")
 async def show_moders_callback_subadmin(
     callback: CallbackQuery, state: FSMContext

@@ -2,11 +2,9 @@ from aiogram import Bot, Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from app.database.actions import create_user, modify_email
 from app.states.user import User
 from app.keyboards.user import get_back_kb
 from app.utils.ask import ask_question
-from app.utils.email import validate_email
 
 
 router = Router(name="user_states")
