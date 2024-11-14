@@ -166,7 +166,7 @@ async def get_news_one(id: int | str) -> str | None:
     """
     async with get_db() as db:
         news = db.table("news")
-        records = await news.get(doc_id=id)
+        records = await news.get(doc_id=int(id))
         return (records.doc_id, records.get("text")) if records else None
 
 

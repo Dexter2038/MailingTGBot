@@ -764,8 +764,7 @@ async def edit_quiz_callback(callback: CallbackQuery, state: FSMContext) -> None
         return
 
     await callback.message.edit_text(
-        f"Текст о викторине:\n{about_quiz}\n\n"
-        "Отправьте текст для выставления в О викторине",
+        f"Текст о викторине:\n{about_quiz}\n\n",
         reply_markup=get_back_kb(),
     )
 
@@ -797,8 +796,7 @@ async def edit_faq_callback(callback: CallbackQuery, state: FSMContext) -> None:
         return
 
     await callback.message.edit_text(
-        f"Текст частых вопросов:\n{faq}\n\n"
-        "Отправьте текст для выставления в Частые вопросы",
+        f"Текст частых вопросов:\n{faq}\n\n",
         reply_markup=get_back_kb(),
     )
 
@@ -830,7 +828,7 @@ async def edit_rules_callback(callback: CallbackQuery, state: FSMContext) -> Non
         return
 
     await callback.message.edit_text(
-        f"Текст правил:\n{rules}\n\n" "Отправьте текст для выставления в правилах",
+        f"Текст правил:\n{rules}\n\n",
         reply_markup=get_back_kb(),
     )
 

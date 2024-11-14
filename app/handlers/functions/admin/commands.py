@@ -454,7 +454,7 @@ async def show_confirm_command(message: Message, command: CommandObject) -> None
     description, users = confirm
 
     description: str
-    Users: List[Tuple[int, str]]
+    users: List[Tuple[int, str]]
 
     text = (
         f"Рассылка с подтверждением:\n\n"

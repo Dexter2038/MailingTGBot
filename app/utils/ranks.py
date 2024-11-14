@@ -47,8 +47,7 @@ async def get_moders() -> List[str]:
     """
     try:
         async with aiofiles.open("app/data/moders.txt", mode="r") as f:
-            ids = await f.readlines()
-            return ids
+            return (id.strip() for id in await f.readlines())
     except Exception as e:
         print(e)
         return []
@@ -284,11 +283,11 @@ async def del_moder(id_or_username: str) -> bool:
                 id = id_or_username
             else:
                 id = await get_id_by_username(id_or_username)
-            ids = await f.readlines()
+            ids = [id.strip() for id in await f.readlines()]
             if str(id) in ids:
                 await f.seek(0)
                 await f.truncate()
-                await f.write("\n".join([id for id in ids if str(id) != str(id)]))
+                await f.write("\n".join([_id for _id in ids if str(_id) != str(id)]))
                 return 1
             else:
                 return -1
@@ -331,8 +330,7 @@ async def get_subadmins() -> list:
     3. Возвращаем список ID субадминистраторов.
     """
     async with aiofiles.open("app/data/subadmins.txt", mode="r") as f:
-        ids = await f.readlines()
-        return ids
+        return [id.strip() for id in await f.readlines()]
 
 
 async def get_full_subadmins() -> list:
@@ -377,11 +375,11 @@ async def del_subadmin(id_or_username: str) -> int:
                 id = id_or_username
             else:
                 id = await get_id_by_username(id_or_username)
-            ids = await f.readlines()
+            ids = [id.strip() for id in await f.readlines()]
             if str(id) in ids:
                 await f.seek(0)
                 await f.truncate()
-                await f.write("\n".join([id for id in ids if str(id) != str(id)]))
+                await f.write("\n".join([_id for _id in ids if str(_id) != str(id)]))
                 return 1
             else:
                 return -1

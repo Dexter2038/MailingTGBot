@@ -2,6 +2,7 @@ from os import environ
 from typing import Iterable, List
 from pyrogram import Client
 from pyrogram.raw.functions.contacts import ResolveUsername
+from pyrogram.raw.functions.users.get_users import GetUsers
 from pyrogram.raw.base.contacts import ResolvedPeer
 
 
@@ -23,14 +24,19 @@ def init_client():
         exit(code=403)
 
 
-async def get_usernames_by_ids(ids: List[int | str]):
-    async with Client("bot_distributor") as client:
-        users = await client.get_users(ids)
-        return (
-            [user.username for user in users]
-            if isinstance(ids, Iterable)
-            else users.username
-        )
+async def get_usernames_by_ids(ids: List[str]):
+    try:
+        async with Client("bot_distributor") as client:
+            ids = [int(id.replace("\n", "")) for id in ids]
+            users = await client.get_users(ids)
+            return (
+                [user.username for user in users]
+                if isinstance(ids, Iterable)
+                else users.username
+            )
+    except Exception as e:
+        print(e)
+        return []
 
 
 async def get_id_by_username(username: str) -> str | None:
