@@ -365,7 +365,8 @@ async def edit_about_quiz_state(message: Message, state: FSMContext) -> None:
         else:
             await message.answer("О викторине не изменено", reply_markup=get_back_kb())
 
-    except Exception:
+    except Exception as e:
+        print(e)
         await message.answer(
             "О викторине не изменено. Произошла ошибка", reply_markup=get_back_kb()
         )
